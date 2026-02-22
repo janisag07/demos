@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Orchestra — Multi-Agent Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0c0a1a,#12101f);color:#e2e8f0;min-height:100vh;display:flex;flex-direction:column}
+.header{background:rgba(15,12,30,.9);border-bottom:1px solid #2d1b69;padding:14px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.header h1{font-size:18px;font-weight:600;background:linear-gradient(135deg,#c084fc,#f472b6,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.htag{background:linear-gradient(135deg,#7c3aed22,#ec489922);border:1px solid #7c3aed44;color:#c084fc;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.metrics{display:flex;gap:8px;margin-left:auto}
+.met{background:rgba(124,58,237,.08);border:1px solid #2d1b69;border-radius:8px;padding:6px 12px;text-align:center}
+.met .v{font-size:15px;font-weight:700;background:linear-gradient(135deg,#c084fc,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.met .l{font-size:9px;color:#7c6fa0;text-transform:uppercase;letter-spacing:1px}
+.body-wrap{display:flex;flex:1;overflow:hidden}
+.agents-col{flex:1;padding:16px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;align-content:start}
+.card{background:rgba(20,16,40,.6);border:1px solid #2d1b69;border-radius:12px;padding:16px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c)}
+.card:hover,.card.sel{border-color:#7c3aed88;box-shadow:0 4px 20px rgba(124,58,237,.15)}
+.card.sel{background:rgba(30,20,60,.8)}
+.card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.card-ico{font-size:24px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(124,58,237,.1);border-radius:10px}
+.card-nm{font-size:14px;font-weight:600}.card-role{font-size:10px;color:#7c6fa0}
+.sdot{width:9px;height:9px;border-radius:50%;margin-left:auto}
+.sdot.active{background:#22c55e;box-shadow:0 0 6px #22c55e88}.sdot.idle{background:#64748b}.sdot.busy{background:#f59e0b;animation:glow 1s infinite}
+@keyframes glow{0%,100%{opacity:1}50%{opacity:.5}}
+.card-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px}
+.cs{background:rgba(124,58,237,.06);border-radius:6px;padding:6px;text-align:center}
+.cs .n{font-size:14px;font-weight:700;color:#c084fc}.cs .t{font-size:8px;color:#7c6fa0;text-transform:uppercase}
+.card-tasks{font-size:11px;line-height:1.8}
+.card-tasks .done{color:#475569;text-decoration:line-through}.card-tasks .pend{color:#94a3b8}
+.card-tasks span:first-child{margin-right:4px}
+.config-col{width:340px;background:rgba(15,12,30,.9);border-left:1px solid #2d1b69;display:flex;flex-direction:column;overflow-y:auto}
+.cc-head{padding:12px 16px;border-bottom:1px solid #2d1b69;font-size:13px;font-weight:600;color:#c084fc}
+.cc-body{padding:14px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+label{font-size:10px;color:#7c6fa0;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:2px}
+input,select,textarea{width:100%;background:#0c0a1a;border:1px solid #2d1b69;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none}
+input:focus,textarea:focus{border-color:#7c3aed}
+textarea{resize:vertical;min-height:50px}
+.fg{display:flex;flex-direction:column;gap:2px}
+.task-item{display:flex;align-items:center;gap:6px;font-size:11px;padding:4px 0}
+.task-item input[type=checkbox]{width:auto}
+.task-item input[type=text]{flex:1}
+.task-item .del{color:#ef4444;cursor:pointer;font-size:13px}
+.add-btn{background:none;border:1px dashed #2d1b69;color:#7c6fa0;padding:5px;border-radius:6px;font-size:11px;cursor:pointer;width:100%;text-align:center}
+.add-btn:hover{border-color:#7c3aed;color:#c084fc}
+.cc-btns{display:flex;gap:8px;padding:12px 16px;border-top:1px solid #2d1b69}
+.btn{flex:1;padding:9px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer}
+.btn-add{background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff}
+.btn-add:hover{box-shadow:0 4px 16px rgba(124,58,237,.4)}
+.btn-sim{background:#1e1440;color:#c084fc;border:1px solid #2d1b69}
+.btn-sim:hover{background:#2d1b69}
+.orch{padding:12px 24px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;border-top:1px solid #2d1b69;background:rgba(10,8,20,.8)}
+.orch-title{font-size:11px;font-weight:600;color:#7c6fa0;text-transform:uppercase;letter-spacing:2px}
+.orch-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;position:relative}
+.onode{background:rgba(124,58,237,.1);border:1px solid #2d1b69;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:600;cursor:pointer;transition:all .3s;position:relative}
+.onode:hover,.onode.active{border-color:#7c3aed;background:rgba(124,58,237,.25);box-shadow:0 0 12px rgba(124,58,237,.3)}
+.onode.hub{background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(236,72,153,.2));border-color:#7c3aed}
+.oarr{color:#2d1b69;font-size:16px}
+.onode .pulse-line{position:absolute;top:50%;left:100%;width:0;height:2px;background:linear-gradient(90deg,#7c3aed,#ec4899);transform:translateY(-50%);transition:width .3s}
+.opanel{background:rgba(20,16,40,.9);border:1px solid #2d1b69;border-radius:10px;padding:14px;width:100%;max-width:700px;font-size:11px;line-height:1.7;max-height:140px;overflow-y:auto;display:none}
+.opanel.show{display:block}
+.opanel h4{color:#c084fc;margin-bottom:6px;font-size:12px}
+.opanel .item{padding:3px 0;border-bottom:1px solid #1a1530}.opanel .item:last-child{border:none}
+.sim-bar{display:flex;gap:8px;align-items:center}
+.sim-input{flex:1;background:#0c0a1a;border:1px solid #2d1b69;color:#e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;outline:none}
+.sim-go{background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>🤖 AI Agent Orchestra</h1>
+<span class="htag">Multi-Agent System</span>
+<div class="metrics">
+<div class="met"><div class="v" id="mTasks">0</div><div class="l">Tasks</div></div>
+<div class="met"><div class="v" id="mUp">99.2%</div><div class="l">Uptime</div></div>
+<div class="met"><div class="v" id="mAgents">0</div><div class="l">Agents</div></div>
+</div>
+</div>
+<div class="body-wrap">
+<div class="agents-col" id="agentsGrid"></div>
+<div class="config-col">
+<div class="cc-head" id="ccHead">⚙️ Select an agent to configure</div>
+<div class="cc-body" id="ccBody"><div style="color:#7c6fa0;font-size:12px;text-align:center;margin-top:40px">← Click an agent card or use the button below to add a new one</div></div>
+<div class="cc-btns">
+<button class="btn btn-sim" onclick="addAgent()">+ New Agent</button>
+<button class="btn btn-add" id="simBtn" onclick="runOrchestration()">⚡ Run Task</button>
+</div>
+</div>
+</div>
+<div class="orch">
+<div class="orch-title">Agent Orchestration Flow</div>
+<div class="sim-bar">
+<input class="sim-input" id="taskInput" placeholder="Enter a task, e.g.: 'Analyze competitor pricing and send report to team'" value="Qualify the new lead from Acme Corp, check CRM, and schedule a follow-up call">
+<button class="sim-go" onclick="runOrchestration()">⚡ Run</button>
+</div>
+<div class="orch-flow" id="orchFlow">
+<div class="onode" id="o-input" onclick="showOrchPanel('input')">📨 Input</div><div class="oarr">→</div>
+<div class="onode hub" id="o-orch" onclick="showOrchPanel('orch')">🧠 Orchestrator</div><div class="oarr">→</div>
+<div class="onode" id="o-router" onclick="showOrchPanel('router')">🔀 Router</div><div class="oarr">→</div>
+<div class="onode" id="o-agents" onclick="showOrchPanel('agents')">🤖 Agents</div><div class="oarr">→</div>
+<div class="onode" id="o-output" onclick="showOrchPanel('output')">✅ Output</div>
+</div>
+<div class="opanel" id="orchPanel"></div>
+</div>
+<script>
+const colors=['#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#06b6d4','#8b5cf6'];
+let agents=[
+{id:1,icon:'📧',name:'Inbox Agent',role:'Email Triage & Auto-Reply',status:'active',color:colors[0],
+tasks:[{t:'Categorize support tickets',done:true},{t:'Draft responses',done:true},{t:'Escalate urgent items',done:false},{t:'Update CRM records',done:false}],
+stats:{today:12,week:84,accuracy:96}},
+{id:2,icon:'📊',name:'Research Agent',role:'Market Intel & Analysis',status:'busy',color:colors[1],
+tasks:[{t:'Scrape competitor pricing',done:true},{t:'Generate market report',done:false},{t:'Track industry news',done:false}],
+stats:{today:8,week:52,accuracy:91}},
+{id:3,icon:'🗓️',name:'Scheduler Agent',role:'Meeting & Calendar Mgmt',status:'active',color:colors[2],
+tasks:[{t:'Find mutual availability',done:true},{t:'Send calendar invites',done:true},{t:'Prep meeting briefs',done:false}],
+stats:{today:15,week:98,accuracy:99}},
+{id:4,icon:'💰',name:'Sales Agent',role:'Lead Qualification & Outreach',status:'active',color:colors[3],
+tasks:[{t:'Score inbound leads',done:true},{t:'Personalize outreach',done:false},{t:'Follow up sequences',done:false}],
+stats:{today:12,week:67,accuracy:94}}
+];
+let selAgent=null,nextId=5,taskCount=0;
+const $=id=>document.getElementById(id);
+
+function render(){
+$('mAgents').textContent=agents.length;
+taskCount=agents.reduce((s,a)=>s+a.tasks.filter(t=>t.done).length,0);
+$('mTasks').textContent=taskCount;
+$('agentsGrid').innerHTML=agents.map(a=>`
+<div class="card ${selAgent===a.id?'sel':''}" style="--c:${a.color}" onclick="selectAgent(${a.id})">
+<div class="card-top">
+<div class="card-ico">${a.icon}</div>
+<div><div class="card-nm">${a.name}</div><div class="card-role">${a.role}</div></div>
+<div class="sdot ${a.status}"></div>
+</div>
+<div class="card-stats">
+<div class="cs"><div class="n">${a.stats.today}</div><div class="t">Today</div></div>
+<div class="cs"><div class="n">${a.stats.week}</div><div class="t">Week</div></div>
+<div class="cs"><div class="n">${a.stats.accuracy}%</div><div class="t">Accuracy</div></div>
+</div>
+<div class="card-tasks">${a.tasks.map(t=>`<div><span class="${t.done?'done':'pend'}">${t.done?'✓':'○'}</span><span class="${t.done?'done':'pend'}">${t.t}</span></div>`).join('')}</div>
+</div>`).join('');
+}
+function selectAgent(id){
+selAgent=id;render();
+const a=agents.find(x=>x.id===id);
+$('ccHead').innerHTML=`${a.icon} ${a.name}`;
+$('ccBody').innerHTML=`
+<div class="fg"><label>Icon</label><input value="${a.icon}" onchange="upd(${id},'icon',this.value)"></div>
+<div class="fg"><label>Name</label><input value="${a.name}" onchange="upd(${id},'name',this.value)"></div>
+<div class="fg"><label>Role</label><input value="${a.role}" onchange="upd(${id},'role',this.value)"></div>
+<div class="fg"><label>Status</label><select onchange="upd(${id},'status',this.value)">
+<option ${a.status==='active'?'selected':''}>active</option>
+<option ${a.status==='busy'?'selected':''}>busy</option>
+<option ${a.status==='idle'?'selected':''}>idle</option></select></div>
+<label>Tasks</label>
+${a.tasks.map((t,i)=>`<div class="task-item">
+<input type="checkbox" ${t.done?'checked':''} onchange="togTask(${id},${i},this.checked)">
+<input type="text" value="${t.t}" onchange="renTask(${id},${i},this.value)">
+<span class="del" onclick="delTask(${id},${i})">✕</span></div>`).join('')}
+<button class="add-btn" onclick="addTask(${id})">+ Add Task</button>
+<div style="border-top:1px solid #2d1b69;padding-top:8px;margin-top:4px">
+<button class="add-btn" style="color:#ef4444;border-color:#7f1d1d" onclick="removeAgent(${id})">🗑 Remove Agent</button></div>`;
+}
+function upd(id,k,v){const a=agents.find(x=>x.id===id);a[k]=v;render();selectAgent(id);}
+function togTask(id,i,v){agents.find(x=>x.id===id).tasks[i].done=v;render();selectAgent(id);}
+function renTask(id,i,v){agents.find(x=>x.id===id).tasks[i].t=v;}
+function delTask(id,i){agents.find(x=>x.id===id).tasks.splice(i,1);render();selectAgent(id);}
+function addTask(id){agents.find(x=>x.id===id).tasks.push({t:'New task',done:false});render();selectAgent(id);}
+function addAgent(){
+const c=colors[agents.length%colors.length];
+const a={id:nextId++,icon:'🤖',name:'New Agent',role:'Custom Role',status:'idle',color:c,
+tasks:[{t:'Define first task',done:false}],stats:{today:0,week:0,accuracy:95}};
+agents.push(a);render();selectAgent(a.id);
+}
+function removeAgent(id){agents=agents.filter(x=>x.id!==id);selAgent=null;render();
+$('ccHead').textContent='⚙️ Agent removed';$('ccBody').innerHTML='<div style="color:#7c6fa0;font-size:12px;text-align:center;margin-top:40px">Select another agent or add a new one</div>';}
+
+// Orchestration flow
+const orchData={
+input:{title:'📨 Input Processing',content:''},
+orch:{title:'🧠 Orchestrator',content:''},
+router:{title:'🔀 Router Logic',content:''},
+agents:{title:'🤖 Agent Assignment',content:''},
+output:{title:'✅ Output & Results',content:''}
+};
+function showOrchPanel(id){
+document.querySelectorAll('.onode').forEach(n=>n.classList.remove('active'));
+$('o-'+(id==='orch'?'orch':id)).classList.add('active');
+const p=$('orchPanel');
+if(!orchData[id].content){
+const defaults={
+input:'<h4>📨 Input Processing</h4><div class="item">Receives tasks from: Email, API, Chat, Webhook, Scheduled triggers</div><div class="item">Parses intent, extracts entities, assigns priority</div><div class="item">Current queue: click <b>⚡ Run</b> to process a task</div>',
+orch:'<h4>🧠 Orchestrator</h4><div class="item">Analyzes task complexity and requirements</div><div class="item">Breaks complex tasks into subtasks</div><div class="item">Assigns priority and dependencies</div><div class="item">Monitors agent availability and workload</div>',
+router:'<h4>🔀 Router Logic</h4><div class="item">Matches task keywords to agent capabilities</div><div class="item">Load balances across available agents</div><div class="item">Handles multi-agent tasks (parallel execution)</div><div class="item">Fallback: unmatched tasks → human review queue</div>',
+agents:'<h4>🤖 Active Agents</h4>'+agents.map(a=>`<div class="item">${a.icon} <b>${a.name}</b> — ${a.role} [${a.status}] (${a.tasks.filter(t=>!t.done).length} pending tasks)</div>`).join(''),
+output:'<h4>✅ Output</h4><div class="item">Results delivered via: Slack, Email, CRM update, Dashboard</div><div class="item">All actions logged with timestamps</div><div class="item">Human approval required for: financial actions, external communications</div>'
+};
+p.innerHTML=defaults[id];
+}else{p.innerHTML=orchData[id].content;}
+p.classList.add('show');
+}
+
+async function runOrchestration(){
+const task=$('taskInput').value||'Process incoming request';
+const p=$('orchPanel');p.classList.add('show');
+const onodes=['input','orch','router','agents','output'];
+document.querySelectorAll('.onode').forEach(n=>n.classList.remove('active'));
+
+// Input
+$('o-input').classList.add('active');
+p.innerHTML=`<h4>📨 Input Received</h4><div class="item"><b>Task:</b> "${task}"</div><div class="item">Parsing intent and entities...</div>`;
+await wait(600);
+const keywords=task.toLowerCase();
+const intents=[];
+if(/lead|qualif|crm|sales|prospect/i.test(keywords))intents.push('sales');
+if(/email|inbox|reply|support/i.test(keywords))intents.push('email');
+if(/research|compet|market|analy/i.test(keywords))intents.push('research');
+if(/schedul|meeting|call|calendar/i.test(keywords))intents.push('scheduling');
+if(!intents.length)intents.push('general');
+p.innerHTML+=`<div class="item">Detected intents: <b>${intents.join(', ')}</b></div>`;
+
+// Orchestrator
+await wait(500);$('o-input').classList.remove('active');$('o-orch').classList.add('active');
+p.innerHTML=`<h4>🧠 Orchestrator — Task Analysis</h4>
+<div class="item"><b>Task:</b> "${task}"</div>
+<div class="item"><b>Complexity:</b> ${intents.length>1?'Multi-step (requires coordination)':'Single-step'}</div>
+<div class="item"><b>Subtasks identified:</b> ${intents.length}</div>`;
+const subtasks=intents.map(i=>{
+const map={sales:'Qualify lead and update pipeline',email:'Process and respond to email',research:'Gather intel and compile report',scheduling:'Find availability and book meeting',general:'Process request'};
+return{intent:i,desc:map[i]};
+});
+subtasks.forEach(s=>p.innerHTML+=`<div class="item">→ ${s.desc}</div>`);
+
+// Router
+await wait(500);$('o-orch').classList.remove('active');$('o-router').classList.add('active');
+p.innerHTML=`<h4>🔀 Router — Agent Matching</h4>`;
+const assignments=[];
+subtasks.forEach(s=>{
+const match=agents.find(a=>{
+const r=(a.role+' '+a.name+' '+a.tasks.map(t=>t.t).join(' ')).toLowerCase();
+return r.includes(s.intent)||
+(s.intent==='sales'&&/sale|lead|pipeline|outreach/i.test(r))||
+(s.intent==='email'&&/email|inbox|triage|reply/i.test(r))||
+(s.intent==='research'&&/research|market|compet|intel/i.test(r))||
+(s.intent==='scheduling'&&/schedul|calendar|meeting/i.test(r));
+});
+assignments.push({...s,agent:match});
+p.innerHTML+=`<div class="item">"${s.desc}" → ${match?`<b>${match.icon} ${match.name}</b>`:'⚠️ No matching agent (→ human review)'}</div>`;
+});
+
+// Agents working
+await wait(500);$('o-router').classList.remove('active');$('o-agents').classList.add('active');
+p.innerHTML=`<h4>🤖 Agents Working...</h4>`;
+for(const a of assignments){
+if(a.agent){
+a.agent.status='busy';render();
+p.innerHTML+=`<div class="item">${a.agent.icon} <b>${a.agent.name}</b> processing: "${a.desc}"...</div>`;
+await wait(600+Math.random()*400);
+a.agent.stats.today++;a.agent.stats.week++;
+a.agent.status='active';
+const pendIdx=a.agent.tasks.findIndex(t=>!t.done);
+if(pendIdx>=0)a.agent.tasks[pendIdx].done=true;
+render();
+p.innerHTML+=`<div class="item" style="color:#22c55e">✓ ${a.agent.name} completed: ${a.desc}</div>`;
+}else{
+p.innerHTML+=`<div class="item" style="color:#f59e0b">⚠ "${a.desc}" — queued for human review</div>`;
+await wait(300);
+}
+}
+
+// Output
+await wait(400);$('o-agents').classList.remove('active');$('o-output').classList.add('active');
+p.innerHTML=`<h4>✅ Task Complete — Results</h4>
+<div class="item"><b>Task:</b> "${task}"</div>
+<div class="item"><b>Agents used:</b> ${assignments.filter(a=>a.agent).map(a=>a.agent.icon+' '+a.agent.name).join(', ')||'none'}</div>
+<div class="item"><b>Subtasks completed:</b> ${assignments.filter(a=>a.agent).length}/${assignments.length}</div>
+${assignments.filter(a=>!a.agent).length?`<div class="item" style="color:#f59e0b"><b>Needs human review:</b> ${assignments.filter(a=>!a.agent).map(a=>a.desc).join(', ')}</div>`:''}
+<div class="item" style="color:#22c55e"><b>Status:</b> All automated steps complete ✓</div>
+<div class="item">Results sent to: Dashboard, Slack notification, CRM updated</div>`;
+$('mTasks').textContent=agents.reduce((s,a)=>s+a.tasks.filter(t=>t.done).length,0);
+await wait(1000);$('o-output').classList.remove('active');
+}
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Automation Flow — n8n Workflow Builder</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0e17;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
+.header{background:linear-gradient(135deg,#0f1729,#1a1f3a);border-bottom:1px solid #1e293b;padding:14px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.header h1{font-size:18px;font-weight:600;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{background:#1e3a5f;color:#60a5fa;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.stats{display:flex;gap:10px;margin-left:auto}
+.stat{background:#111827;border:1px solid #1e293b;border-radius:8px;padding:6px 14px;text-align:center}
+.stat .val{font-size:16px;font-weight:700;color:#60a5fa}
+.stat .lbl{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:1px}
+.main{display:flex;height:calc(100vh - 56px)}
+.flow-panel{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.flow-row{display:flex;align-items:center;gap:0;justify-content:center;flex-wrap:wrap}
+.node{background:#111827;border:2px solid #1e293b;border-radius:12px;padding:14px 16px;min-width:140px;max-width:160px;cursor:pointer;transition:all .3s;position:relative;text-align:center}
+.node:hover,.node.sel{border-color:#60a5fa;box-shadow:0 0 20px rgba(96,165,250,.2)}
+.node.sel{background:#0f1729}
+.node .ico{font-size:22px;margin-bottom:6px}
+.node .nm{font-size:12px;font-weight:600}
+.node .ds{font-size:10px;color:#64748b;margin-top:2px}
+.node .dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#64748b}
+.node .dot.ok{background:#22c55e}.node .dot.run{background:#f59e0b;animation:pulse 1s infinite}
+.node .dot.done{background:#22c55e}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.arrow{color:#334155;font-size:20px;padding:0 6px}
+.config-panel{width:360px;background:#111827;border-left:1px solid #1e293b;display:flex;flex-direction:column;overflow-y:auto}
+.cp-head{padding:14px 16px;border-bottom:1px solid #1e293b;font-size:13px;font-weight:600;color:#60a5fa;display:flex;align-items:center;gap:8px}
+.cp-body{padding:16px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;display:block}
+input,select,textarea{width:100%;background:#0a0e17;border:1px solid #1e293b;color:#e2e8f0;border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:#60a5fa}
+textarea{resize:vertical;min-height:60px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.btn-row{display:flex;gap:8px;padding:14px 16px;border-top:1px solid #1e293b}
+.btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-run{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff}
+.btn-run:hover{box-shadow:0 4px 16px rgba(99,102,241,.4)}
+.btn-run:disabled{opacity:.5;cursor:not-allowed}
+.btn-reset{background:#1e293b;color:#94a3b8}
+.btn-reset:hover{background:#2d3748}
+.log-panel{background:#0a0e17;border:1px solid #1e293b;border-radius:10px;padding:12px;font-family:'Fira Code',monospace;font-size:11px;line-height:1.8;max-height:220px;overflow-y:auto;flex-shrink:0}
+.log-panel .ts{color:#475569}.log-panel .ok{color:#22c55e}.log-panel .info{color:#60a5fa}.log-panel .warn{color:#f59e0b}.log-panel .data{color:#c084fc}
+.data-card{background:#0f1729;border:1px solid #1e293b;border-radius:8px;padding:10px 12px;font-size:11px;margin-top:4px}
+.data-card .k{color:#64748b}.data-card .v{color:#e2e8f0;margin-left:4px}
+.rule-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.rule-row input,.rule-row select{flex:1}
+.add-rule{background:none;border:1px dashed #334155;color:#64748b;padding:6px;border-radius:6px;font-size:11px;cursor:pointer;width:100%;text-align:center}
+.add-rule:hover{border-color:#60a5fa;color:#60a5fa}
+.sim-email{background:#0f1729;border:1px solid #1e293b;border-radius:8px;padding:10px;margin-top:8px}
+.sim-email .subj{font-weight:600;font-size:12px;color:#60a5fa}.sim-email .from{font-size:11px;color:#94a3b8}.sim-email .body{font-size:11px;color:#7c8ca8;margin-top:4px;line-height:1.5}
+.tag{display:inline-block;background:#1e293b;color:#94a3b8;padding:2px 7px;border-radius:5px;font-size:10px;margin:2px}
+.tag.pos{background:#14532d;color:#4ade80}.tag.neg{background:#7f1d1d;color:#fca5a5}.tag.neu{background:#1e3a5f;color:#60a5fa}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>⚡ AI Automation Flow</h1>
+<span class="badge">n8n Workflow</span>
+<div class="stats">
+<div class="stat"><div class="val" id="sRuns">0</div><div class="lbl">Runs</div></div>
+<div class="stat"><div class="val" id="sRate">—</div><div class="lbl">Success</div></div>
+<div class="stat"><div class="val" id="sTime">—</div><div class="lbl">Avg Time</div></div>
+</div>
+</div>
+<div class="main">
+<div class="flow-panel">
+<div class="flow-row" id="flowRow"></div>
+<div class="log-panel" id="log">Click a node to configure it, then press <span class="info">▶ Run Workflow</span> to process a simulated email.</div>
+</div>
+<div class="config-panel">
+<div class="cp-head" id="cpHead">⚙️ Select a node to configure</div>
+<div class="cp-body" id="cpBody"><div style="color:#64748b;font-size:12px;text-align:center;margin-top:40px">← Click any node in the workflow to configure its settings</div></div>
+<div class="btn-row">
+<button class="btn btn-reset" onclick="resetAll()">↺ Reset</button>
+<button class="btn btn-run" id="runBtn" onclick="runFlow()">▶ Run Workflow</button>
+</div>
+</div>
+</div>
+<script>
+const C={
+trigger:{email:'support@company.com',folder:'INBOX',filter:'all'},
+ai:{model:'gpt-4o',prompt:'Classify this email as: urgent-support, sales-inquiry, spam, or general. Extract: sender intent, sentiment (positive/neutral/negative), key entities. Respond as JSON.',temperature:.3},
+router:{rules:[{field:'category',op:'equals',value:'urgent-support',action:'Slack + CRM'},{field:'category',op:'equals',value:'sales-inquiry',action:'Pipeline'},{field:'sentiment',op:'equals',value:'negative',action:'Escalate'}],fallback:'Log & Archive'},
+action:{slack_channel:'#support-alerts',crm:'Salesforce',pipeline_stage:'New Lead',notify_email:'team@company.com'},
+output:{webhook_url:'https://hooks.company.com/n8n/results',log_level:'detailed',store_db:true}
+};
+const nodes=[
+{id:'trigger',ico:'📨',nm:'Email Trigger',ds:'IMAP Listener'},
+{id:'ai',ico:'🤖',nm:'AI Analysis',ds:'GPT Classification'},
+{id:'router',ico:'🔀',nm:'Smart Router',ds:'Conditional Logic'},
+{id:'action',ico:'⚡',nm:'Actions',ds:'CRM / Slack / Email'},
+{id:'output',ico:'✅',nm:'Output',ds:'Webhook & Logging'}
+];
+let sel=null,runCount=0,totalTime=0;
+const $=id=>document.getElementById(id);
+// Render flow
+$('flowRow').innerHTML=nodes.map((n,i)=>(i?'<div class="arrow">→</div>':'')+
+`<div class="node" id="nd-${n.id}" onclick="selNode('${n.id}')"><div class="dot" id="dot-${n.id}"></div><div class="ico">${n.ico}</div><div class="nm">${n.nm}</div><div class="ds">${n.ds}</div></div>`).join('');
+
+function selNode(id){
+sel=id;
+document.querySelectorAll('.node').forEach(n=>n.classList.remove('sel'));
+$('nd-'+id).classList.add('sel');
+renderConfig(id);
+}
+function renderConfig(id){
+const h=$('cpHead'),b=$('cpBody');
+const n=nodes.find(x=>x.id===id);
+h.innerHTML=`${n.ico} ${n.nm} Configuration`;
+let html='';
+if(id==='trigger'){
+html=`<div class="fg"><label>Email Address (IMAP)</label><input id="cEmail" value="${C.trigger.email}" onchange="C.trigger.email=this.value"></div>
+<div class="fg"><label>Folder</label><select id="cFolder" onchange="C.trigger.folder=this.value">
+<option ${C.trigger.folder==='INBOX'?'selected':''}>INBOX</option><option>Sent</option><option>Archive</option></select></div>
+<div class="fg"><label>Filter</label><select onchange="C.trigger.filter=this.value">
+<option value="all" ${C.trigger.filter==='all'?'selected':''}>All Emails</option>
+<option value="unread" ${C.trigger.filter==='unread'?'selected':''}>Unread Only</option>
+<option value="flagged" ${C.trigger.filter==='flagged'?'selected':''}>Flagged Only</option></select></div>
+<div style="border-top:1px solid #1e293b;padding-top:10px;margin-top:4px"><label>📧 Simulated Incoming Email</label>
+<div class="fg" style="margin-top:6px"><label>From</label><input id="simFrom" value="angry.customer@gmail.com"></div>
+<div class="fg"><label>Subject</label><input id="simSubj" value="URGENT: Service is down!!!"></div>
+<div class="fg"><label>Body</label><textarea id="simBody" rows="3">Our entire platform has been down for 2 hours. We are losing money every minute. This is unacceptable! We need immediate support or we will cancel our contract. Account #4521, Enterprise plan.</textarea></div></div>`;
+}else if(id==='ai'){
+html=`<div class="fg"><label>Model</label><select onchange="C.ai.model=this.value">
+<option ${C.ai.model==='gpt-4o'?'selected':''}>gpt-4o</option>
+<option ${C.ai.model==='gpt-4-turbo'?'selected':''}>gpt-4-turbo</option>
+<option ${C.ai.model==='claude-3.5-sonnet'?'selected':''}>claude-3.5-sonnet</option>
+<option ${C.ai.model==='gemini-pro'?'selected':''}>gemini-pro</option></select></div>
+<div class="fg"><label>System Prompt</label><textarea id="cPrompt" rows="5" onchange="C.ai.prompt=this.value">${C.ai.prompt}</textarea></div>
+<div class="fg"><label>Temperature: <span id="tempVal">${C.ai.temperature}</span></label>
+<input type="range" min="0" max="1" step="0.1" value="${C.ai.temperature}" oninput="C.ai.temperature=+this.value;$('tempVal').textContent=this.value" style="padding:0"></div>`;
+}else if(id==='router'){
+html=`<label>Routing Rules</label><div id="rulesBox">${C.router.rules.map((r,i)=>ruleHTML(r,i)).join('')}</div>
+<button class="add-rule" onclick="addRule()">+ Add Rule</button>
+<div class="fg" style="margin-top:8px"><label>Fallback Action</label><input value="${C.router.fallback}" onchange="C.router.fallback=this.value"></div>`;
+}else if(id==='action'){
+html=`<div class="fg"><label>Slack Channel</label><input value="${C.action.slack_channel}" onchange="C.action.slack_channel=this.value"></div>
+<div class="fg"><label>CRM System</label><select onchange="C.action.crm=this.value">
+<option ${C.action.crm==='Salesforce'?'selected':''}>Salesforce</option>
+<option ${C.action.crm==='HubSpot'?'selected':''}>HubSpot</option>
+<option ${C.action.crm==='Pipedrive'?'selected':''}>Pipedrive</option></select></div>
+<div class="fg"><label>Pipeline Stage</label><input value="${C.action.pipeline_stage}" onchange="C.action.pipeline_stage=this.value"></div>
+<div class="fg"><label>Notification Email</label><input value="${C.action.notify_email}" onchange="C.action.notify_email=this.value"></div>`;
+}else if(id==='output'){
+html=`<div class="fg"><label>Webhook URL</label><input value="${C.output.webhook_url}" onchange="C.output.webhook_url=this.value"></div>
+<div class="fg"><label>Log Level</label><select onchange="C.output.log_level=this.value">
+<option ${C.output.log_level==='minimal'?'selected':''}>minimal</option>
+<option ${C.output.log_level==='detailed'?'selected':''}>detailed</option>
+<option ${C.output.log_level==='debug'?'selected':''}>debug</option></select></div>
+<div class="fg"><label><input type="checkbox" ${C.output.store_db?'checked':''} onchange="C.output.store_db=this.checked" style="width:auto;margin-right:6px">Store results in database</label></div>`;
+}
+b.innerHTML=html;
+}
+function ruleHTML(r,i){
+return`<div class="rule-row"><select onchange="C.router.rules[${i}].field=this.value" style="max-width:80px">
+<option ${r.field==='category'?'selected':''}>category</option><option ${r.field==='sentiment'?'selected':''}>sentiment</option>
+<option ${r.field==='priority'?'selected':''}>priority</option></select>
+<select onchange="C.router.rules[${i}].op=this.value" style="max-width:70px">
+<option ${r.op==='equals'?'selected':''}>equals</option><option ${r.op==='contains'?'selected':''}>contains</option></select>
+<input value="${r.value}" onchange="C.router.rules[${i}].value=this.value" style="max-width:100px">
+<input value="${r.action}" onchange="C.router.rules[${i}].action=this.value" placeholder="Action">
+<span onclick="C.router.rules.splice(${i},1);renderConfig('router')" style="cursor:pointer;color:#ef4444;font-size:14px">✕</span></div>`;
+}
+function addRule(){C.router.rules.push({field:'category',op:'equals',value:'',action:''});renderConfig('router');}
+function log(msg,cls='info'){const l=$('log');const t=new Date().toLocaleTimeString();l.innerHTML+=`\n<span class="ts">[${t}]</span> <span class="${cls}">${msg}</span>`;l.scrollTop=l.scrollHeight;}
+function setDot(id,cls){$('dot-'+id).className='dot '+cls;}
+
+async function runFlow(){
+const btn=$('runBtn');btn.disabled=true;btn.textContent='⏳ Running...';
+$('log').innerHTML='';
+const from=$('simFrom')?$('simFrom').value:'customer@test.com';
+const subj=$('simSubj')?$('simSubj').value:'Test email';
+const body=$('simBody')?$('simBody').value:'Test body';
+nodes.forEach(n=>setDot(n.id,''));
+const t0=performance.now();
+
+// Step 1: Trigger
+setDot('trigger','run');selNode('trigger');
+log('📨 Email Trigger activated — monitoring <b>'+C.trigger.email+'</b> ('+C.trigger.folder+', '+C.trigger.filter+')','info');
+await wait(500);
+log('📩 New email received!','ok');
+log(`&nbsp;&nbsp;From: <b>${from}</b>`,'data');
+log(`&nbsp;&nbsp;Subject: <b>${subj}</b>`,'data');
+log(`&nbsp;&nbsp;Body: "${body.substring(0,80)}${body.length>80?'...':''}"`,  'data');
+setDot('trigger','done');
+
+// Step 2: AI
+await wait(400);setDot('ai','run');selNode('ai');
+log(`🤖 Sending to <b>${C.ai.model}</b> (temp: ${C.ai.temperature})...`,'info');
+await wait(800);
+const isUrgent=/urgent|down|broken|emergency|asap|help|cancel/i.test(subj+' '+body);
+const isSales=/pricing|quote|buy|purchase|demo|interested|proposal/i.test(subj+' '+body);
+const isSpam=/win|lottery|free|click here|nigerian/i.test(subj+' '+body);
+const sentiment=/angry|unacceptable|terrible|worst|cancel|losing|furious/i.test(body)?'negative':
+  /thank|great|love|happy|excellent/i.test(body)?'positive':'neutral';
+const category=isSpam?'spam':isUrgent?'urgent-support':isSales?'sales-inquiry':'general';
+const entities=[];
+const accMatch=body.match(/(?:account|acct|#)\s*#?(\w+)/i);if(accMatch)entities.push('Account: '+accMatch[1]);
+const planMatch=body.match(/(enterprise|pro|basic|starter|business)\s*plan/i);if(planMatch)entities.push('Plan: '+planMatch[1]);
+const moneyMatch=body.match(/\$[\d,]+/);if(moneyMatch)entities.push('Amount: '+moneyMatch[0]);
+
+const aiResult={category,sentiment,entities,confidence:.92+Math.random()*.07};
+log('✓ AI Analysis complete:','ok');
+log(`&nbsp;&nbsp;Category: <span class="tag ${category==='urgent-support'?'neg':category==='sales-inquiry'?'pos':'neu'}">${category}</span>`,'data');
+log(`&nbsp;&nbsp;Sentiment: <span class="tag ${sentiment==='negative'?'neg':sentiment==='positive'?'pos':'neu'}">${sentiment}</span>`,'data');
+log(`&nbsp;&nbsp;Entities: ${entities.length?entities.join(', '):'none detected'}`,'data');
+log(`&nbsp;&nbsp;Confidence: ${(aiResult.confidence*100).toFixed(1)}%`,'data');
+setDot('ai','done');
+
+// Step 3: Router
+await wait(400);setDot('router','run');selNode('router');
+log('🔀 Evaluating '+C.router.rules.length+' routing rules...','info');
+await wait(400);
+let matched=null;
+for(const r of C.router.rules){
+const val=r.field==='category'?category:r.field==='sentiment'?sentiment:'unknown';
+const m=r.op==='equals'?val===r.value:val.includes(r.value);
+log(`&nbsp;&nbsp;Rule: ${r.field} ${r.op} "${r.value}" → ${m?'<span class="ok">MATCH</span>':'no match'}`,'data');
+if(m&&!matched)matched=r;
+}
+const routeAction=matched?matched.action:C.router.fallback;
+log(matched?`✓ Routed to: <b>${routeAction}</b>`:`⚠ No match — fallback: <b>${C.router.fallback}</b>`,matched?'ok':'warn');
+setDot('router','done');
+
+// Step 4: Actions
+await wait(400);setDot('action','run');selNode('action');
+log('⚡ Executing actions for route: <b>'+routeAction+'</b>','info');
+await wait(300);
+if(/slack/i.test(routeAction)){
+  log(`&nbsp;&nbsp;→ Slack: Sent alert to <b>${C.action.slack_channel}</b>`,'ok');
+  log(`&nbsp;&nbsp;&nbsp;&nbsp;"🚨 ${category.toUpperCase()}: ${subj} (from ${from})"`,'data');
+  await wait(200);
+}
+if(/crm|salesforce|hubspot/i.test(routeAction)){
+  log(`&nbsp;&nbsp;→ ${C.action.crm}: Created ticket / updated record`,'ok');await wait(200);
+}
+if(/pipeline/i.test(routeAction)){
+  log(`&nbsp;&nbsp;→ Pipeline: Added to stage "<b>${C.action.pipeline_stage}</b>"`,'ok');await wait(200);
+}
+if(/escalat/i.test(routeAction)){
+  log(`&nbsp;&nbsp;→ Email: Escalation sent to <b>${C.action.notify_email}</b>`,'ok');await wait(200);
+}
+if(/log|archive/i.test(routeAction)){
+  log('&nbsp;&nbsp;→ Archived to database','ok');await wait(200);
+}
+setDot('action','done');
+
+// Step 5: Output
+await wait(300);setDot('output','run');selNode('output');
+const elapsed=((performance.now()-t0)/1000).toFixed(2);
+log('✅ Posting results to webhook...','info');
+await wait(300);
+log(`&nbsp;&nbsp;→ POST ${C.output.webhook_url}`,'data');
+log(`&nbsp;&nbsp;→ Log level: ${C.output.log_level}${C.output.store_db?' | Stored in DB':''}`,  'data');
+log('','info');
+log(`<b>✅ Workflow complete in ${elapsed}s</b>`,'ok');
+log(`&nbsp;&nbsp;Email: ${from} → Category: ${category} → Action: ${routeAction}`,'data');
+setDot('output','done');
+
+runCount++;totalTime+=parseFloat(elapsed);
+$('sRuns').textContent=runCount;
+$('sRate').textContent='100%';
+$('sTime').textContent=(totalTime/runCount).toFixed(1)+'s';
+btn.disabled=false;btn.textContent='▶ Run Workflow';
+}
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+function resetAll(){
+  C.trigger={email:'support@company.com',folder:'INBOX',filter:'all'};
+  C.ai={model:'gpt-4o',prompt:'Classify this email as: urgent-support, sales-inquiry, spam, or general. Extract: sender intent, sentiment (positive/neutral/negative), key entities. Respond as JSON.',temperature:.3};
+  C.router={rules:[{field:'category',op:'equals',value:'urgent-support',action:'Slack + CRM'},{field:'category',op:'equals',value:'sales-inquiry',action:'Pipeline'},{field:'sentiment',op:'equals',value:'negative',action:'Escalate'}],fallback:'Log & Archive'};
+  C.action={slack_channel:'#support-alerts',crm:'Salesforce',pipeline_stage:'New Lead',notify_email:'team@company.com'};
+  C.output={webhook_url:'https://hooks.company.com/n8n/results',log_level:'detailed',store_db:true};
+  nodes.forEach(n=>setDot(n.id,''));
+  $('log').innerHTML='Configuration reset. Click a node to configure, then run.';
+  if(sel)renderConfig(sel);
+}
+selNode('trigger');
+</script>
+</body>
+</html>

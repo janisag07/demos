@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPQ Sales Pipeline — Automation Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0e17;color:#e2e8f0;min-height:100vh}
+.header{background:linear-gradient(135deg,#0f1729,#1a1f3a);border-bottom:1px solid #1e293b;padding:16px 32px;display:flex;align-items:center;gap:16px}
+.header h1{font-size:20px;font-weight:600;background:linear-gradient(135deg,#34d399,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header .badge{background:#1e3a5f;color:#34d399;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.kpis{display:flex;gap:12px;margin-left:auto}
+.kpi{background:#111827;border:1px solid #1e293b;border-radius:8px;padding:8px 16px;text-align:center}
+.kpi .v{font-size:18px;font-weight:700;color:#34d399}.kpi .l{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px}
+.main{padding:24px 32px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:768px){.main{grid-template-columns:1fr}}
+.panel{background:#111827;border:1px solid #1e293b;border-radius:12px;padding:20px}
+.panel h3{font-size:13px;font-weight:600;color:#60a5fa;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.pipeline{display:flex;gap:2px;margin-bottom:16px}
+.stage{flex:1;text-align:center;padding:8px 4px;font-size:11px;font-weight:600;border-radius:6px;transition:all .3s;cursor:pointer}
+.stage.s0{background:#1e3a5f;color:#60a5fa}.stage.s1{background:#1e3a2f;color:#34d399}
+.stage.s2{background:#3a2e1e;color:#f59e0b}.stage.s3{background:#2e1e3a;color:#a78bfa}
+.stage.s4{background:#1e3a2f;color:#22c55e}.stage.active{transform:scaleY(1.1);box-shadow:0 0 12px rgba(96,165,250,.2)}
+.lead{background:#0a0e17;border:1px solid #1e293b;border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.lead:hover{border-color:#334155}.lead.selected{border-color:#60a5fa;background:#0f1729}
+.lead .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.lead .name{font-size:13px;font-weight:600}
+.lead .amount{font-size:12px;color:#34d399;font-weight:600}
+.lead .co{font-size:11px;color:#64748b}
+.badge-s{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.badge-s.new{background:#1e3a5f;color:#60a5fa}.badge-s.qual{background:#1e3a2f;color:#34d399}
+.badge-s.quote{background:#3a2e1e;color:#f59e0b}.badge-s.review{background:#2e1e3a;color:#a78bfa}
+.badge-s.won{background:#1e3a2f;color:#22c55e}
+.detail-view{font-size:12px;line-height:1.8;color:#94a3b8}
+.detail-view .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #1e293b}
+.detail-view .label{color:#64748b}.detail-view .val{color:#e2e8f0;font-weight:500}
+.actions{display:flex;gap:8px;margin-top:12px}
+.btn{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.btn-approve{background:#22c55e;color:#fff}.btn-approve:hover{background:#16a34a}
+.btn-reject{background:#374151;color:#94a3b8}.btn-reject:hover{background:#4b5563}
+.btn-new{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff}.btn-new:hover{box-shadow:0 2px 12px rgba(99,102,241,.3)}
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:#1e293b}
+.tl-item{position:relative;padding:8px 0;font-size:11px;color:#94a3b8}
+.tl-item::before{content:'';position:absolute;left:-17px;top:12px;width:10px;height:10px;border-radius:50%;background:#334155;border:2px solid #1e293b}
+.tl-item.done::before{background:#22c55e;border-color:#166534}
+.tl-item.cur::before{background:#f59e0b;border-color:#92400e;animation:pulse 1.5s infinite}
+.tl-item .ts{color:#475569;font-size:10px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.toast{position:fixed;bottom:20px;right:20px;background:#22c55e;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;transform:translateY(100px);opacity:0;transition:all .4s}
+.toast.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>📊 CPQ Sales Pipeline</h1>
+<span class="badge">Automation + Human-in-the-Loop</span>
+<div class="kpis">
+<div class="kpi"><div class="v" id="kLeads">12</div><div class="l">Active Leads</div></div>
+<div class="kpi"><div class="v" id="kVal">$48K</div><div class="l">Pipeline Value</div></div>
+<div class="kpi"><div class="v" id="kRate">68%</div><div class="l">Win Rate</div></div>
+</div>
+</div>
+<div class="main">
+<div class="panel">
+<h3>🔄 Pipeline Stages</h3>
+<div class="pipeline">
+<div class="stage s0 active">New Lead<br><b>4</b></div>
+<div class="stage s1">Qualified<br><b>3</b></div>
+<div class="stage s2">Quote Sent<br><b>3</b></div>
+<div class="stage s3">🧑 Review<br><b>2</b></div>
+<div class="stage s4">Won<br><b>5</b></div>
+</div>
+<div id="leads"></div>
+<button class="btn btn-new" onclick="addLead()" style="width:100%;margin-top:8px">+ Simulate New Lead</button>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px">
+<div class="panel">
+<h3>📋 Lead Detail</h3>
+<div id="detail"><div class="detail-view" style="color:#475569;text-align:center;padding:20px">Select a lead to view details</div></div>
+</div>
+<div class="panel">
+<h3>📜 Activity Timeline</h3>
+<div class="timeline" id="timeline">
+<div class="tl-item done"><div><b>Lead captured</b> via web form</div><div class="ts">2 hours ago</div></div>
+<div class="tl-item done"><div><b>AI qualified</b> — Score: 87/100</div><div class="ts">1 hour ago</div></div>
+<div class="tl-item done"><div><b>Auto-quote</b> generated ($4,200)</div><div class="ts">45 min ago</div></div>
+<div class="tl-item cur"><div><b>⏳ Awaiting</b> human approval</div><div class="ts">Now</div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const leads=[
+{id:1,name:'Sarah Chen',co:'TechVault SG',amount:'$8,200',stage:'review',score:92,email:'sarah@techvault.sg',src:'LinkedIn Ad'},
+{id:2,name:'Marco Silva',co:'Porto Digital',amount:'$4,500',stage:'quote',score:87,email:'marco@portodigital.pt',src:'Web Form'},
+{id:3,name:'Anna Kowalski',co:'DataFlow EU',amount:'$12,000',stage:'qualified',score:78,email:'anna@dataflow.eu',src:'Referral'},
+{id:4,name:'James Park',co:'CloudNine AI',amount:'$6,800',stage:'new',score:65,email:'james@cloudnine.ai',src:'Cold Outreach'},
+{id:5,name:'Lisa Wang',co:'AutoScale',amount:'$3,200',stage:'won',score:95,email:'lisa@autoscale.io',src:'Webinar'},
+{id:6,name:'David Mueller',co:'SmartOps DE',amount:'$9,400',stage:'review',score:88,email:'david@smartops.de',src:'Partner'},
+];
+let sel=null;
+const stageLabels={new:'new',qualified:'qual',quote:'quote',review:'review',won:'won'};
+function renderLeads(){
+const el=document.getElementById('leads');
+el.innerHTML=leads.map(l=>`<div class="lead ${sel===l.id?'selected':''}" onclick="selectLead(${l.id})">
+<div class="top"><span class="name">${l.name}</span><span class="amount">${l.amount}</span></div>
+<div class="top"><span class="co">${l.co}</span><span class="badge-s ${stageLabels[l.stage]}">${l.stage.toUpperCase()}</span></div></div>`).join('');
+}
+function selectLead(id){
+sel=id;const l=leads.find(x=>x.id===id);renderLeads();
+const actions=l.stage==='review'?`<div class="actions"><button class="btn btn-approve" onclick="approveLead(${id})">✓ Approve</button><button class="btn btn-reject" onclick="rejectLead(${id})">✗ Reject</button></div>`:'';
+document.getElementById('detail').innerHTML=`<div class="detail-view">
+<div class="row"><span class="label">Name</span><span class="val">${l.name}</span></div>
+<div class="row"><span class="label">Company</span><span class="val">${l.co}</span></div>
+<div class="row"><span class="label">Deal Value</span><span class="val">${l.amount}</span></div>
+<div class="row"><span class="label">AI Score</span><span class="val">${l.score}/100</span></div>
+<div class="row"><span class="label">Source</span><span class="val">${l.src}</span></div>
+<div class="row"><span class="label">Email</span><span class="val">${l.email}</span></div>
+<div class="row"><span class="label">Stage</span><span class="val"><span class="badge-s ${stageLabels[l.stage]}">${l.stage.toUpperCase()}</span></span></div>
+${actions}</div>`;
+}
+function approveLead(id){const l=leads.find(x=>x.id===id);l.stage='won';selectLead(id);showToast('✅ Deal approved! Moving to Won.')}
+function rejectLead(id){const l=leads.find(x=>x.id===id);l.stage='new';selectLead(id);showToast('↩ Returned to pipeline for re-qualification.')}
+function addLead(){
+const names=['Alex Turner','Mei Lin','Carlos Diaz','Priya Patel','Tom Nielsen'];
+const cos=['NovaTech','PixelForge','DataBridge','ScaleUp AI','FlowWorks'];
+const i=Math.floor(Math.random()*5);
+leads.unshift({id:Date.now(),name:names[i],co:cos[i],amount:'$'+(Math.floor(Math.random()*10+2)*1000).toLocaleString(),stage:'new',score:Math.floor(Math.random()*30+60),email:names[i].split(' ')[0].toLowerCase()+'@company.com',src:'Auto-Captured'});
+renderLeads();showToast('🆕 New lead captured automatically!');
+const tl=document.getElementById('timeline');
+tl.innerHTML=`<div class="tl-item cur"><div><b>New lead</b> ${names[i]} auto-captured</div><div class="ts">Just now</div></div>`+tl.innerHTML;
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+renderLeads();
+</script>
+</body>
+</html>
