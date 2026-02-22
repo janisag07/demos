@@ -50,6 +50,25 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0e17;color:#e2e8f
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .toast{position:fixed;bottom:20px;right:20px;background:#22c55e;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;transform:translateY(100px);opacity:0;transition:all .4s}
 .toast.show{transform:translateY(0);opacity:1}
+@media(max-width:768px){
+.header{padding:10px 14px;gap:8px;flex-wrap:wrap}
+.header h1{font-size:15px}
+.kpis{margin-left:0;width:100%;justify-content:space-between}
+.kpi{padding:6px 10px}.kpi .v{font-size:14px}
+.main{padding:12px;gap:12px;grid-template-columns:1fr}
+.panel{padding:14px}
+.panel h3{font-size:12px}
+.pipeline{flex-wrap:wrap;gap:4px}
+.stage{flex:1 1 45%;font-size:10px;padding:6px}
+.lead .top{flex-wrap:wrap}
+.btn{padding:12px;min-height:44px;font-size:14px}
+.btn-new{font-size:14px;padding:12px}
+.detail-view .row{flex-direction:column;gap:2px}
+.detail-view .label{font-size:11px}.detail-view .val{font-size:13px}
+.actions{flex-wrap:wrap}
+.actions .btn{flex:1 1 45%}
+.toast{left:12px;right:12px;text-align:center}
+}
 </style>
 </head>
 <body>
