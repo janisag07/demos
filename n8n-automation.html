@@ -56,22 +56,28 @@ textarea{resize:vertical;min-height:60px}
 .tag{display:inline-block;background:#1e293b;color:#94a3b8;padding:2px 7px;border-radius:5px;font-size:10px;margin:2px}
 .tag.pos{background:#14532d;color:#4ade80}.tag.neg{background:#7f1d1d;color:#fca5a5}.tag.neu{background:#1e3a5f;color:#60a5fa}
 @media(max-width:768px){
-.header{padding:10px 14px;gap:8px}
-.header h1{font-size:15px}
-.stats{margin-left:0;width:100%;justify-content:space-between}
-.stat{padding:5px 10px}.stat .val{font-size:13px}
-.main{flex-direction:column;height:auto}
-.flow-panel{padding:12px}
-.flow-row{flex-direction:column;gap:8px}
-.arrow{transform:rotate(90deg);padding:0}
-.node{min-width:0;max-width:100%;width:100%}
-.config-panel{width:100%;border-left:none;border-top:1px solid #1e293b}
-.cp-body{padding:12px}
-.btn-row{padding:10px 12px}
-.btn{padding:12px;min-height:44px;font-size:14px}
-.log-panel{font-size:10px;max-height:180px}
-input,select,textarea{font-size:14px;padding:10px}
+.header{padding:10px 12px;gap:6px;flex-direction:column;align-items:flex-start}
+.header h1{font-size:16px}
+.stats{margin-left:0;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stat{padding:6px 8px}.stat .val{font-size:14px}.stat .lbl{font-size:8px}
+.badge{font-size:10px}
+.main{flex-direction:column;height:auto;min-height:auto}
+.flow-panel{padding:10px;gap:10px}
+.flow-row{flex-direction:column;gap:6px}
+.arrow{transform:rotate(90deg);padding:0;font-size:16px}
+.node{min-width:0;max-width:100%;width:100%;padding:10px 12px;display:flex;align-items:center;gap:10px;text-align:left}
+.node .ico{font-size:20px;margin-bottom:0;flex-shrink:0}
+.node .nm{font-size:12px}
+.node .ds{font-size:10px}
+.config-panel{width:100%;border-left:none;border-top:1px solid #1e293b;max-height:none}
+.cp-body{padding:10px}
+.btn-row{padding:10px;gap:6px}
+.btn{padding:12px;min-height:48px;font-size:14px}
+.log-panel{font-size:10px;max-height:200px}
+input,select,textarea{font-size:16px;padding:10px}
 .rule-row{flex-wrap:wrap}
+.data-card{font-size:10px}
+.sim-email{padding:8px}
 .rule-row input,.rule-row select{max-width:100%!important;flex:1 1 40%}
 }
 </style>
