@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claw Setup Service — Multi-Agent AI Systems That Actually Work</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a12;--bg2:#12121e;--bg3:#1a1a2e;--purple:#7c3aed;--purple-light:#a78bfa;--pink:#ec4899;--cyan:#06b6d4;--green:#22c55e;--orange:#f59e0b;--text:#e2e8f0;--muted:#94a3b8;--border:#2d2d4a;--gradient:linear-gradient(135deg,#7c3aed,#ec4899,#f59e0b)}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+a{color:var(--purple-light);text-decoration:none}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 20px 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(124,58,237,.15),transparent 70%);top:-100px;right:-100px;pointer-events:none}
+.hero::after{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(236,72,153,.1),transparent 70%);bottom:-50px;left:-50px;pointer-events:none}
+.hero-content{max-width:800px;position:relative;z-index:1}
+.hero-badge{display:inline-block;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:var(--purple-light);padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:24px;letter-spacing:.5px}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.15;margin-bottom:20px}
+.hero h1 .grad{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:clamp(1rem,2vw,1.2rem);color:var(--muted);max-width:600px;margin:0 auto 36px}
+.hero-cta{display:inline-flex;align-items:center;gap:10px;background:var(--gradient);color:#fff;font-weight:700;font-size:16px;padding:14px 32px;border-radius:12px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;text-decoration:none}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,.4)}
+.hero-sub{margin-top:16px;font-size:13px;color:var(--muted)}
+
+/* Sections */
+section{padding:80px 20px}
+.container{max-width:1100px;margin:0 auto}
+.section-label{display:inline-block;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.25);color:var(--purple-light);padding:4px 14px;border-radius:16px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:700;margin-bottom:12px}
+.section-sub{color:var(--muted);font-size:1.05rem;max-width:600px;margin-bottom:48px}
+
+/* Architecture Diagram */
+.arch{background:var(--bg2);border-radius:20px;border:1px solid var(--border);padding:40px 20px;position:relative;overflow:hidden}
+.arch-grid{display:flex;flex-direction:column;align-items:center;gap:24px}
+.arch-hub{background:var(--gradient);border-radius:16px;padding:20px 32px;text-align:center;font-weight:700;font-size:1.1rem;color:#fff;box-shadow:0 4px 30px rgba(124,58,237,.3);position:relative;z-index:2}
+.arch-hub small{display:block;font-weight:400;font-size:.75rem;opacity:.85;margin-top:4px}
+.arch-lines{display:flex;justify-content:center;gap:0;height:40px;position:relative;z-index:1}
+.arch-line{width:2px;height:40px;background:var(--border);margin:0 40px}
+.arch-agents{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;width:100%;max-width:700px}
+.arch-agent{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px 12px;text-align:center;transition:border-color .3s,transform .3s}
+.arch-agent:hover{border-color:var(--purple);transform:translateY(-3px)}
+.arch-agent .emoji{font-size:28px;margin-bottom:6px}
+.arch-agent .name{font-weight:600;font-size:14px}
+.arch-agent .role{font-size:11px;color:var(--muted);margin-top:2px}
+.arch-channels{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:8px}
+.arch-ch{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.25);color:var(--cyan);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500}
+
+/* Features */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.feature{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px 24px;transition:border-color .3s,transform .3s}
+.feature:hover{border-color:var(--purple);transform:translateY(-3px)}
+.feature .icon{font-size:28px;margin-bottom:12px}
+.feature h3{font-size:1.05rem;margin-bottom:8px}
+.feature p{color:var(--muted);font-size:.9rem;line-height:1.6}
+
+/* Packages */
+.packages{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;align-items:start}
+.pkg{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px 24px;position:relative;transition:transform .3s,box-shadow .3s}
+.pkg:hover{transform:translateY(-4px);box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.pkg.popular{border-color:var(--purple);box-shadow:0 0 40px rgba(124,58,237,.15)}
+.pkg.popular::before{content:'MOST POPULAR';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gradient);color:#fff;font-size:11px;font-weight:700;padding:4px 16px;border-radius:12px;letter-spacing:.5px}
+.pkg-tier{font-size:28px;margin-bottom:4px}
+.pkg h3{font-size:1.3rem;margin-bottom:4px}
+.pkg .tagline{color:var(--muted);font-size:.85rem;margin-bottom:16px;font-style:italic}
+.pkg .price{font-size:2.2rem;font-weight:800;margin-bottom:4px}
+.pkg .price span{font-size:.9rem;font-weight:400;color:var(--muted)}
+.pkg .delivery{font-size:.8rem;color:var(--muted);margin-bottom:20px}
+.pkg ul{list-style:none;margin-bottom:24px}
+.pkg li{font-size:.88rem;padding:5px 0;color:var(--muted);display:flex;align-items:flex-start;gap:8px}
+.pkg li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.pkg-btn{display:block;text-align:center;padding:12px;border-radius:10px;font-weight:700;font-size:.95rem;transition:all .2s;text-decoration:none}
+.pkg-btn.outline{border:2px solid var(--border);color:var(--text)}
+.pkg-btn.outline:hover{border-color:var(--purple);color:var(--purple-light)}
+.pkg-btn.filled{background:var(--gradient);color:#fff;border:none}
+.pkg-btn.filled:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(124,58,237,.4)}
+
+/* Testimonials */
+.testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.testimonial{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px 24px}
+.testimonial .stars{color:var(--orange);font-size:16px;margin-bottom:12px;letter-spacing:2px}
+.testimonial blockquote{font-size:.95rem;color:var(--muted);line-height:1.7;margin-bottom:16px;font-style:italic}
+.testimonial .author{display:flex;align-items:center;gap:10px}
+.testimonial .avatar{width:36px;height:36px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+.testimonial .info .name{font-weight:600;font-size:.9rem}
+.testimonial .info .role{font-size:.75rem;color:var(--muted)}
+
+/* FAQ */
+.faq-list{max-width:700px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);padding:20px 0}
+.faq-q{font-weight:600;font-size:1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq-q::after{content:'+';font-size:1.4rem;color:var(--purple-light);transition:transform .3s;flex-shrink:0}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;color:var(--muted);font-size:.9rem;line-height:1.7}
+.faq-item.open .faq-a{max-height:300px;padding-top:12px}
+
+/* CTA Bottom */
+.cta-section{text-align:center;padding:100px 20px}
+.cta-section h2{font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:700;margin-bottom:12px}
+.cta-section p{color:var(--muted);margin-bottom:32px;font-size:1.05rem}
+
+/* Footer */
+footer{text-align:center;padding:30px 20px;border-top:1px solid var(--border);color:var(--muted);font-size:.8rem}
+
+/* Animations */
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.arch-hub{animation:float 4s ease-in-out infinite}
+
+/* Mobile */
+@media(max-width:768px){
+  section{padding:60px 16px}
+  .arch-line{margin:0 20px}
+  .arch-agents{grid-template-columns:repeat(2,1fr)}
+  .packages{grid-template-columns:1fr}
+  .features-grid{grid-template-columns:1fr}
+  .testimonials{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .hero{padding:60px 16px 40px}
+  .arch-agents{grid-template-columns:1fr 1fr}
+  .arch-line{margin:0 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">🦅 OpenClaw Multi-Agent Systems</div>
+    <h1>Not a Chatbot.<br><span class="grad">An AI Workforce.</span></h1>
+    <p>I build production multi-agent systems that read files, run code, search the web, control browsers, and collaborate across channels. This isn't theory — it's my daily workflow.</p>
+    <a href="https://www.upwork.com" class="hero-cta" target="_blank">Get Your AI Team → </a>
+    <div class="hero-sub">Starting at $300 · Delivery in 3-5 days · Self-hosted & secure</div>
+  </div>
+</section>
+
+<!-- Architecture -->
+<section id="architecture">
+  <div class="container">
+    <div class="section-label">Architecture</div>
+    <h2 class="section-title">Multi-Agent System Design</h2>
+    <p class="section-sub">Each agent has its own brain, memory, personality, and permissions — orchestrated through a central gateway.</p>
+    <div class="arch">
+      <div class="arch-grid">
+        <div class="arch-hub">🧠 OpenClaw Gateway<small>Routing · Security · Orchestration</small></div>
+        <div class="arch-lines">
+          <div class="arch-line"></div>
+          <div class="arch-line"></div>
+          <div class="arch-line"></div>
+          <div class="arch-line"></div>
+        </div>
+        <div class="arch-agents">
+          <div class="arch-agent"><div class="emoji">🔬</div><div class="name">Research Agent</div><div class="role">Web search · Analysis</div></div>
+          <div class="arch-agent"><div class="emoji">💻</div><div class="name">Code Agent</div><div class="role">Dev · Automation</div></div>
+          <div class="arch-agent"><div class="emoji">📋</div><div class="name">Operations Agent</div><div class="role">Calendar · Email</div></div>
+          <div class="arch-agent"><div class="emoji">🎨</div><div class="name">Creative Agent</div><div class="role">Content · Design</div></div>
+        </div>
+        <div class="arch-channels">
+          <div class="arch-ch">💬 WhatsApp</div>
+          <div class="arch-ch">📱 Telegram</div>
+          <div class="arch-ch">🎮 Discord</div>
+          <div class="arch-ch">💼 Slack</div>
+          <div class="arch-ch">📧 Email</div>
+          <div class="arch-ch">🌐 15+ more</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- What You Get -->
+<section id="features">
+  <div class="container">
+    <div class="section-label">What You Get</div>
+    <h2 class="section-title">Production-Grade, Not Demo-Grade</h2>
+    <p class="section-sub">Every feature battle-tested in daily production use.</p>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="icon">🧬</div>
+        <h3>Agents with Personality & Purpose</h3>
+        <p>Each agent gets its own SOUL.md, memory system, and workspace. Not a generic bot — a tailored AI team member.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📡</div>
+        <h3>Real Channel Integrations</h3>
+        <p>WhatsApp, Telegram, Discord, Slack, iMessage, Teams, and 15+ more. Your agents live where your team already communicates.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🧠</div>
+        <h3>Memory That Persists</h3>
+        <p>Vector-indexed long-term memory with hybrid search (BM25 + semantic). Your agent remembers context across sessions.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🔒</div>
+        <h3>Security Hardening</h3>
+        <p>Sandboxed execution, per-agent tool policies, allowlists, and scoped permissions. Production-grade security.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🔀</div>
+        <h3>Multi-Agent Routing</h3>
+        <p>Multiple isolated agents on one server, each with their own brain, channels, and permissions. Route by channel, sender, or role.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">⚡</div>
+        <h3>Custom Skills</h3>
+        <p>Extensible skill system for web search, browser automation, code execution, TTS, image generation, and anything you need.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Packages -->
+<section id="packages">
+  <div class="container">
+    <div class="section-label">Packages</div>
+    <h2 class="section-title">Choose Your Setup</h2>
+    <p class="section-sub">From your first agent to a full AI organization.</p>
+    <div class="packages">
+      <!-- Basic -->
+      <div class="pkg">
+        <div class="pkg-tier">🥉</div>
+        <h3>Basic</h3>
+        <div class="tagline">Get your first AI agent live and working</div>
+        <div class="price">$300 <span>one-time</span></div>
+        <div class="delivery">📦 Delivery: 3–5 days</div>
+        <ul>
+          <li>OpenClaw installation & configuration</li>
+          <li>1 fully configured agent with custom personality</li>
+          <li>1 channel integration</li>
+          <li>Memory system setup</li>
+          <li>Basic security configuration</li>
+          <li>Model provider setup</li>
+          <li>30-minute walkthrough call</li>
+        </ul>
+        <a href="https://www.upwork.com" class="pkg-btn outline" target="_blank">Get Started</a>
+      </div>
+      <!-- Pro -->
+      <div class="pkg popular">
+        <div class="pkg-tier">🥈</div>
+        <h3>Pro</h3>
+        <div class="tagline">A multi-agent setup that handles real workflows</div>
+        <div class="price">$750 <span>one-time</span></div>
+        <div class="delivery">📦 Delivery: 7–10 days</div>
+        <ul>
+          <li>Everything in Basic</li>
+          <li>2–3 agents with isolated workspaces & routing</li>
+          <li>2–3 channel integrations</li>
+          <li>Custom skills (search, browser, code execution)</li>
+          <li>Vector memory with hybrid search</li>
+          <li>Cron jobs & heartbeat automation</li>
+          <li>Webhook/event integrations</li>
+          <li>Full setup documentation</li>
+        </ul>
+        <a href="https://www.upwork.com" class="pkg-btn filled" target="_blank">Most Popular →</a>
+      </div>
+      <!-- Enterprise -->
+      <div class="pkg">
+        <div class="pkg-tier">🥇</div>
+        <h3>Enterprise</h3>
+        <div class="tagline">A full AI organization on your infrastructure</div>
+        <div class="price">$1,500 <span>one-time</span></div>
+        <div class="delivery">📦 Delivery: 10–15 days</div>
+        <ul>
+          <li>Everything in Pro</li>
+          <li>4+ agents with role-based routing</li>
+          <li>Unlimited channel integrations</li>
+          <li>Advanced Docker sandboxing</li>
+          <li>Custom skill development</li>
+          <li>Mobile node setup (iOS/Android)</li>
+          <li>90-min team training session</li>
+          <li>Architecture runbook & docs</li>
+          <li>30 days post-delivery support</li>
+        </ul>
+        <a href="https://www.upwork.com" class="pkg-btn outline" target="_blank">Contact Me</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section id="testimonials">
+  <div class="container">
+    <div class="section-label">Testimonials</div>
+    <h2 class="section-title">What Clients Say</h2>
+    <p class="section-sub">Real feedback from real setups.</p>
+    <div class="testimonials">
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <blockquote>"Janis set up a multi-agent system that completely transformed how our team handles research and communication. The agents work 24/7 and the memory system is incredible."</blockquote>
+        <div class="author">
+          <div class="avatar">M</div>
+          <div class="info"><div class="name">Max</div><div class="role">Early Adopter · Pro Package</div></div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <blockquote>"I was skeptical about AI agents, but this is nothing like a chatbot. It actually runs code, manages my calendar, and sends me Telegram updates. Mind-blowing setup."</blockquote>
+        <div class="author">
+          <div class="avatar">S</div>
+          <div class="info"><div class="name">Sarah K.</div><div class="role">Startup Founder · Basic Package</div></div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <blockquote>"The documentation alone was worth it. Janis didn't just set it up — he made sure we could extend and maintain it ourselves. True production quality."</blockquote>
+        <div class="author">
+          <div class="avatar">R</div>
+          <div class="info"><div class="name">Robert T.</div><div class="role">CTO · Enterprise Package</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">Common Questions</h2>
+    <p class="section-sub">Everything you need to know before getting started.</p>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">What's the difference between this and a regular AI chatbot?</div>
+        <div class="faq-a">A chatbot answers questions. An OpenClaw agent runs code, searches the web, controls a browser, reads and writes files, sends messages across platforms, and collaborates with other agents. It's the difference between a receptionist and a team.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Do I need my own server?</div>
+        <div class="faq-a">OpenClaw runs on macOS, Linux, Raspberry Pi, VPS, or Docker. I'll help you pick the right setup for your use case and budget. A $5/month VPS works for most setups.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Which AI models does it support?</div>
+        <div class="faq-a">Anthropic (Claude), OpenAI (GPT-4), Google (Gemini), local models via Ollama, and 15+ other providers. You can mix models per agent — fast models for chat, powerful models for deep work.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is my data safe?</div>
+        <div class="faq-a">OpenClaw is self-hosted. Your data stays on your infrastructure. No third-party SaaS middleman. Agents can be sandboxed with scoped tool policies and allowlists.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I add more agents or channels later?</div>
+        <div class="faq-a">Yes. OpenClaw is modular. Adding a new agent or channel is a config change. I provide documentation so you can extend the system yourself, or book a follow-up.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What ongoing costs should I expect?</div>
+        <div class="faq-a">Just your AI model API costs (typically $10–50/month depending on usage) and hosting if you use a VPS. No OpenClaw license fees.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Bottom -->
+<section class="cta-section">
+  <h2>Ready to Build Your <span style="background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent">AI Workforce</span>?</h2>
+  <p>Stop paying for chatbots. Start deploying agents that actually work.</p>
+  <a href="https://www.upwork.com" class="hero-cta" target="_blank">Get Started on Upwork →</a>
+</section>
+
+<footer>
+  <p>© 2025 Claw Setup Service · Built with OpenClaw · <a href="https://github.com/janisag07/demos" target="_blank">View More Demos</a></p>
+</footer>
+
+<script>
+// FAQ accordion
+document.querySelectorAll('.faq-q').forEach(q=>{
+  q.addEventListener('click',()=>{
+    const item=q.parentElement;
+    item.classList.toggle('open');
+  });
+});
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
