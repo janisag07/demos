@@ -56,29 +56,38 @@ textarea{resize:vertical;min-height:60px}
 .tag{display:inline-block;background:#1e293b;color:#94a3b8;padding:2px 7px;border-radius:5px;font-size:10px;margin:2px}
 .tag.pos{background:#14532d;color:#4ade80}.tag.neg{background:#7f1d1d;color:#fca5a5}.tag.neu{background:#1e3a5f;color:#60a5fa}
 @media(max-width:768px){
-.header{padding:10px 12px;gap:6px;flex-direction:column;align-items:flex-start}
+html,body{overflow-x:hidden;width:100%}
+.header{padding:12px 14px;gap:8px;flex-direction:column;align-items:flex-start}
 .header h1{font-size:16px}
 .stats{margin-left:0;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .stat{padding:6px 8px}.stat .val{font-size:14px}.stat .lbl{font-size:8px}
 .badge{font-size:10px}
-.main{flex-direction:column;height:auto;min-height:auto}
-.flow-panel{padding:10px;gap:10px}
-.flow-row{flex-direction:column;gap:6px}
-.arrow{transform:rotate(90deg);padding:0;font-size:16px}
-.node{min-width:0;max-width:100%;width:100%;padding:10px 12px;display:flex;align-items:center;gap:10px;text-align:left}
+.main{flex-direction:column;height:auto;min-height:auto;overflow-x:hidden}
+.flow-panel{padding:12px;gap:10px}
+.flow-row{flex-direction:column;gap:6px;width:100%}
+.arrow{transform:rotate(90deg);padding:0;font-size:16px;line-height:1}
+.node{min-width:0;max-width:100%;width:100%;padding:12px 14px;display:flex;align-items:center;gap:10px;text-align:left}
 .node .ico{font-size:20px;margin-bottom:0;flex-shrink:0}
-.node .nm{font-size:12px}
-.node .ds{font-size:10px}
+.node .nm{font-size:13px}
+.node .ds{font-size:11px}
+.node .dot{top:50%;right:10px;transform:translateY(-50%)}
 .config-panel{width:100%;border-left:none;border-top:1px solid #1e293b;max-height:none}
-.cp-body{padding:10px}
-.btn-row{padding:10px;gap:6px}
-.btn{padding:12px;min-height:48px;font-size:14px}
-.log-panel{font-size:10px;max-height:200px}
-input,select,textarea{font-size:16px;padding:10px}
-.rule-row{flex-wrap:wrap}
-.data-card{font-size:10px}
-.sim-email{padding:8px}
-.rule-row input,.rule-row select{max-width:100%!important;flex:1 1 40%}
+.cp-head{padding:12px 14px;font-size:14px}
+.cp-body{padding:14px}
+.btn-row{padding:12px 14px;gap:8px}
+.btn{padding:14px;min-height:48px;font-size:15px;border-radius:10px}
+.log-panel{font-size:11px;max-height:240px;padding:12px;line-height:1.7}
+input,select,textarea{font-size:16px;padding:12px;border-radius:10px}
+input[type=range]{padding:4px 0}
+input[type=checkbox]{width:auto!important;min-height:auto!important}
+label{font-size:12px;margin-bottom:4px}
+.fg{gap:4px}
+.rule-row{flex-direction:column;gap:6px}
+.rule-row input,.rule-row select{max-width:100%!important;width:100%!important;flex:none}
+.add-rule{padding:12px;min-height:48px;font-size:13px;display:flex;align-items:center;justify-content:center}
+.data-card{font-size:11px;padding:10px}
+.sim-email{padding:10px}
+.tag{font-size:11px;padding:3px 8px}
 }
 </style>
 </head>
