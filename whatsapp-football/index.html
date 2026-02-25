@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Football Coach — WhatsApp Bot Demo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a1a0a;color:#e9edef;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+.phone{width:100%;max-width:420px;height:700px;background:#0b141a;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.header{background:#1a2e1a;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.header .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;font-size:20px}
+.header .info .name{font-size:16px;font-weight:600}
+.header .info .status{font-size:12px;color:#4ade80}
+.chat{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.msg{max-width:85%;padding:8px 12px;border-radius:8px;font-size:14px;line-height:1.45;animation:fadeIn .25s}
+.msg.bot{background:#1a2e1a;align-self:flex-start;border-top-left-radius:0}
+.msg.user{background:#15572e;align-self:flex-end;border-top-right-radius:0}
+.msg .time{font-size:11px;color:#8696a0;text-align:right;margin-top:3px}
+.buttons{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.buttons button{background:transparent;border:1px solid #22c55e;color:#22c55e;padding:10px;border-radius:8px;font-size:13px;cursor:pointer;transition:all .2s;min-height:44px}
+.buttons button:hover{background:#22c55e20}
+.input-area{background:#1a2e1a;padding:8px 12px;display:flex;gap:8px;align-items:center}
+.input-area input{flex:1;background:#2a3942;border:none;color:#e9edef;padding:12px 14px;border-radius:24px;font-size:14px;outline:none;min-height:44px}
+.input-area .send{background:#16a34a;border:none;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:18px}
+.footer{text-align:center;color:#8696a0;font-size:11px;padding:6px;background:#0b141a}
+.card{background:#0f1f0f;border:1px solid #22c55e30;border-radius:10px;padding:12px;margin-top:8px;font-size:13px}
+.card .title{color:#22c55e;font-weight:700;font-size:14px;margin-bottom:8px}
+.progress-bar{background:#1a2e1a;border-radius:4px;height:8px;margin:4px 0 8px}
+.progress-bar .fill{height:100%;border-radius:4px;transition:width .5s}
+.fill.green{background:#22c55e}
+.fill.yellow{background:#eab308}
+.fill.red{background:#ef4444}
+.risk{display:inline-block;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:700}
+.risk.low{background:#16a34a30;color:#4ade80}
+.risk.med{background:#eab30830;color:#facc15}
+.risk.high{background:#ef444430;color:#f87171}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.stat-box{background:#0f1f0f;border:1px solid #22c55e20;border-radius:8px;padding:8px;text-align:center}
+.stat-box .val{font-size:18px;font-weight:700;color:#22c55e}
+.stat-box .lbl{font-size:11px;color:#8696a0}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:440px){.phone{height:calc(100vh - 32px);border-radius:16px}}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="header">
+<div class="avatar">⚽</div>
+<div class="info">
+<div class="name">AI Football Coach</div>
+<div class="status">● Active — Daily check-in ready</div>
+</div>
+</div>
+<div class="chat" id="chat"></div>
+<div class="input-area">
+<input type="text" id="input" placeholder="Message your coach..." autocomplete="off">
+<button class="send" onclick="sendMsg()">➤</button>
+</div>
+<div class="footer">Demo — AI Football Coach Platform</div>
+</div>
+<script>
+const chat=document.getElementById('chat'),input=document.getElementById('input');
+let player={name:'Marcus',pos:'Midfielder'};
+const now=()=>{const d=new Date();return d.getHours()+':'+String(d.getMinutes()).padStart(2,'0')};
+function addMsg(text,isBot,buttons){
+const d=document.createElement('div');d.className='msg '+(isBot?'bot':'user');
+d.innerHTML=text+'<div class="time">'+now()+'</div>';
+if(buttons){const b=document.createElement('div');b.className='buttons';
+buttons.forEach(([l,a])=>{const btn=document.createElement('button');btn.textContent=l;btn.onclick=()=>handle(a,l);b.appendChild(btn)});d.appendChild(b)}
+chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+function type(text,buttons,delay=600){setTimeout(()=>addMsg(text,true,buttons),delay)}
+
+function handle(a,l){
+addMsg(l,false);
+if(a==='checkin'){type('📋 <b>Daily Check-in</b>\n\nHey '+player.name+'! How are you feeling today?',
+[['💪 Great — 100%','feel_great'],['👍 Good — 80%','feel_good'],['😐 Average — 60%','feel_avg'],['🤕 Sore / Tired','feel_bad']])}
+else if(a.startsWith('feel_')){
+const feeling=a.split('_')[1];
+player.feeling=feeling;
+type('How did you sleep last night?',
+[['😴 8+ hours — Great','sleep_great'],['🛌 6-8 hours — OK','sleep_ok'],['😵 < 6 hours — Poor','sleep_poor']])}
+else if(a.startsWith('sleep_')){
+player.sleep=l;
+type('Any muscle soreness or pain?',
+[['✅ None — All clear','pain_none'],['⚡ Mild tightness','pain_mild'],['⚠️ Specific pain area','pain_area'],['🚨 Significant pain','pain_sig']])}
+else if(a.startsWith('pain_')){
+player.pain=l;
+let risk='low',riskClass='low',riskPct=18,wellness=87;
+if(player.feeling==='bad'||a==='pain_sig'){risk='HIGH';riskClass='high';riskPct=72;wellness=45}
+else if(player.feeling==='avg'||a==='pain_area'){risk='MEDIUM';riskClass='med';riskPct=45;wellness=65}
+const card=`<div class="card">
+<div class="title">📊 AI Analysis Complete</div>
+<b>Wellness Score</b>
+<div class="progress-bar"><div class="fill ${riskClass==='high'?'red':riskClass==='med'?'yellow':'green'}" style="width:${wellness}%"></div></div>
+<b>${wellness}/100</b><br><br>
+<b>Injury Risk:</b> <span class="risk ${riskClass}">${risk} — ${riskPct}%</span>
+<div class="stat-grid">
+<div class="stat-box"><div class="val">${player.feeling==='great'?'100%':player.feeling==='good'?'80%':'60%'}</div><div class="lbl">Readiness</div></div>
+<div class="stat-box"><div class="val">${player.sleep.includes('8+')?'A+':player.sleep.includes('6-8')?'B':'C'}</div><div class="lbl">Recovery</div></div>
+<div class="stat-box"><div class="val">${riskPct}%</div><div class="lbl">Risk Score</div></div>
+<div class="stat-box"><div class="val">📈</div><div class="lbl">Trending Up</div></div>
+</div></div>`;
+type('🤖 '+card+'\n\n<b>AI Recommendation:</b>\n'+(riskClass==='high'?'🚨 Rest day recommended. Light stretching only.':riskClass==='med'?'⚡ Modified training. Reduce intensity by 30%.':'✅ Full training approved. Push yourself today!'),
+[['📋 Training Plan','training'],['📈 Weekly Report','weekly'],['💎 Premium Features','premium'],['🔙 Menu','menu']],900)}
+else if(a==='training'){
+const card=`<div class="card">
+<div class="title">🏋️ Today's Training Plan</div>
+<b>Warm-up (15 min)</b><br>• Dynamic stretching<br>• Light jog 800m<br>• Agility ladder drills<br><br>
+<b>Main Session (45 min)</b><br>• Ball control: 3 sets × 5 min<br>• Passing accuracy: 4 sets × 8 reps<br>• Sprint intervals: 6 × 40m<br>• Small-sided game: 20 min<br><br>
+<b>Cool-down (10 min)</b><br>• Static stretching<br>• Foam rolling<br>• Breathing exercises
+</div>`;
+type(card,[['✅ Log Completed','log_done'],['📊 Track Progress','progress'],['🔙 Menu','menu']],800)}
+else if(a==='weekly'){
+const card=`<div class="card">
+<div class="title">📊 Weekly Performance Report</div>
+<div class="stat-grid">
+<div class="stat-box"><div class="val">5/7</div><div class="lbl">Sessions Done</div></div>
+<div class="stat-box"><div class="val">82%</div><div class="lbl">Avg Wellness</div></div>
+<div class="stat-box"><div class="val">↑12%</div><div class="lbl">Fitness Gain</div></div>
+<div class="stat-box"><div class="val">LOW</div><div class="lbl">Injury Risk</div></div>
+</div><br>
+<b>📈 Trends:</b><br>
+• Sprint speed improved 8%<br>
+• Sleep quality trending up<br>
+• Muscle recovery: optimal<br>
+• Hydration: needs improvement
+</div>`;
+type(card,[['📋 Daily Check-in','checkin'],['💎 Premium','premium'],['🔙 Menu','menu']],800)}
+else if(a==='premium'){type('💎 <b>Premium Coach Features</b>\n\n🎯 <b>Pro Plan — $29/month</b>\n• Advanced AI injury prediction\n• Video analysis feedback\n• Personalized nutrition plans\n• Direct coach messaging\n• Team analytics dashboard\n\n🏆 <b>Elite Plan — $59/month</b>\n• Everything in Pro\n• 1-on-1 video calls with coaches\n• GPS performance tracking\n• Match readiness scoring\n• Recovery optimization AI',
+[['✅ Start Free Trial','trial'],['📊 Compare Plans','premium'],['🔙 Menu','menu']])}
+else if(a==='trial'){type('🎉 <b>Free Trial Activated!</b>\n\n✅ 14-day Pro access unlocked\n📧 Welcome email sent\n📱 Full features available now\n\nYour first AI analysis is ready!',
+[['📋 Daily Check-in','checkin'],['📈 Full Report','weekly'],['🔙 Menu','menu']])}
+else if(a==='log_done'){type('✅ <b>Session Logged!</b>\n\n🏃 Training marked complete\n📊 Stats updated\n🔥 Streak: 5 days in a row!\n\nKeep it up, '+player.name+'! 💪',
+[['📈 View Progress','weekly'],['📋 Tomorrow\'s Plan','training'],['🔙 Menu','menu']])}
+else if(a==='progress'){type('📈 <b>Progress Tracker</b>\n\n🔥 Current Streak: 5 days\n📅 This Month: 18/22 sessions\n⚡ Fitness Level: 78/100\n🎯 Goal Progress: 72%\n\n<b>Next Milestone:</b>\n🏆 Complete 20 sessions → unlock advanced drills',
+[['📋 Check-in','checkin'],['🔙 Menu','menu']])}
+else if(a==='menu'){type('⚽ What would you like to do?',
+[['📋 Daily Check-in','checkin'],['🏋️ Training Plan','training'],['📈 Weekly Report','weekly'],['💎 Premium Features','premium']])}
+}
+
+function sendMsg(){
+const v=input.value.trim();if(!v)return;addMsg(v,false);input.value='';
+const vl=v.toLowerCase();
+if(vl.includes('check')||vl.includes('how'))handle('checkin','Check-in');
+else if(vl.includes('train')||vl.includes('workout'))handle('training','Training');
+else if(vl.includes('report')||vl.includes('stats')||vl.includes('week'))handle('weekly','Report');
+else if(vl.includes('premium')||vl.includes('upgrade')||vl.includes('pro'))handle('premium','Premium');
+else if(vl.includes('hi')||vl.includes('hello'))handle('menu','Menu');
+else type('I can help with daily check-ins, training plans, and performance analysis!',
+[['📋 Daily Check-in','checkin'],['🏋️ Training','training'],['📈 Report','weekly']]);
+}
+input.addEventListener('keypress',e=>{if(e.key==='Enter')sendMsg()});
+setTimeout(()=>type('⚽ Hey '+player.name+'! Welcome to <b>AI Football Coach</b>.\n\nI\'m your personal AI-powered coaching assistant. I track your wellness, analyze injury risk, and create personalized training plans.\n\nReady for your daily check-in?',
+[['📋 Daily Check-in','checkin'],['🏋️ Today\'s Training','training'],['📈 Weekly Report','weekly'],['💎 Premium Features','premium']]),400);
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Job Arrangement Bot — Demo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#111b21;color:#e9edef;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+.phone{width:100%;max-width:420px;height:700px;background:#0b141a;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.header{background:#1a2640;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.header .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;font-size:20px}
+.header .info .name{font-size:16px;font-weight:600}
+.header .info .status{font-size:12px;color:#60a5fa}
+.chat{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.msg{max-width:85%;padding:8px 12px;border-radius:8px;font-size:14px;line-height:1.45;animation:fadeIn .25s}
+.msg.bot{background:#1a2640;align-self:flex-start;border-top-left-radius:0}
+.msg.user{background:#1e3a5f;align-self:flex-end;border-top-right-radius:0}
+.msg .time{font-size:11px;color:#8696a0;text-align:right;margin-top:3px}
+.buttons{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.buttons button{background:transparent;border:1px solid #60a5fa;color:#60a5fa;padding:10px;border-radius:8px;font-size:13px;cursor:pointer;transition:all .2s;min-height:44px}
+.buttons button:hover{background:#60a5fa20}
+.input-area{background:#1a2640;padding:8px 12px;display:flex;gap:8px;align-items:center}
+.input-area input{flex:1;background:#2a3942;border:none;color:#e9edef;padding:12px 14px;border-radius:24px;font-size:14px;outline:none;min-height:44px}
+.input-area .send{background:#3b82f6;border:none;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:18px}
+.footer{text-align:center;color:#8696a0;font-size:11px;padding:6px;background:#0b141a}
+.card{background:#0f1a2e;border:1px solid #3b82f630;border-radius:10px;padding:12px;margin-top:8px;font-size:13px}
+.card .title{color:#60a5fa;font-weight:700;font-size:14px;margin-bottom:8px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin:8px 0}
+.cal .day{text-align:center;padding:6px 2px;border-radius:4px;font-size:12px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.cal .day.head{color:#60a5fa;font-weight:600;font-size:11px}
+.cal .day.avail{background:#1e3a5f;cursor:pointer;color:#60a5fa}
+.cal .day.avail:hover{background:#3b82f640}
+.cal .day.booked{background:#16a34a30;color:#4ade80}
+.cal .day.empty{color:#4a5568}
+.job-card{background:#0f1a2e;border:1px solid #3b82f620;border-radius:8px;padding:10px;margin-top:6px}
+.job-card .role{font-weight:600;color:#fff;font-size:14px}
+.job-card .details{color:#8696a0;font-size:12px;margin-top:4px}
+.job-card .pay{color:#4ade80;font-weight:700;font-size:15px;margin-top:4px}
+.badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600}
+.badge.confirmed{background:#16a34a30;color:#4ade80}
+.badge.pending{background:#eab30830;color:#facc15}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:440px){.phone{height:calc(100vh - 32px);border-radius:16px}}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="header">
+<div class="avatar">💼</div>
+<div class="info">
+<div class="name">JobArrange Bot</div>
+<div class="status">● Online — 23 jobs available</div>
+</div>
+</div>
+<div class="chat" id="chat"></div>
+<div class="input-area">
+<input type="text" id="input" placeholder="Search jobs, check schedule..." autocomplete="off">
+<button class="send" onclick="sendMsg()">➤</button>
+</div>
+<div class="footer">Demo — WhatsApp Job Arrangement Platform</div>
+</div>
+<script>
+const chat=document.getElementById('chat'),input=document.getElementById('input');
+let booking={};
+const now=()=>{const d=new Date();return d.getHours()+':'+String(d.getMinutes()).padStart(2,'0')};
+function addMsg(text,isBot,buttons){
+const d=document.createElement('div');d.className='msg '+(isBot?'bot':'user');
+d.innerHTML=text+'<div class="time">'+now()+'</div>';
+if(buttons){const b=document.createElement('div');b.className='buttons';
+buttons.forEach(([l,a])=>{const btn=document.createElement('button');btn.textContent=l;btn.onclick=()=>handle(a,l);b.appendChild(btn)});d.appendChild(b)}
+chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+function type(text,buttons,delay=600){setTimeout(()=>addMsg(text,true,buttons),delay)}
+
+function handle(a,l){
+addMsg(l,false);
+if(a==='browse'){type('📋 <b>Available Jobs This Week</b>'+
+'<div class="job-card"><div class="role">🏗 Construction Worker</div><div class="details">📍 Tel Aviv • ⏰ Sun-Thu 7AM-3PM</div><div class="pay">₪280/day</div></div>'+
+'<div class="job-card"><div class="role">🍽 Restaurant Server</div><div class="details">📍 Herzliya • ⏰ Evening shifts 5PM-11PM</div><div class="pay">₪180/shift + tips</div></div>'+
+'<div class="job-card"><div class="role">📦 Warehouse Assistant</div><div class="details">📍 Ashdod • ⏰ Flexible hours</div><div class="pay">₪220/day</div></div>'+
+'<div class="job-card"><div class="role">🧹 Cleaning — Office</div><div class="details">📍 Ramat Gan • ⏰ Mon/Wed/Fri mornings</div><div class="pay">₪150/session</div></div>',
+[['🏗 Book Construction','book_const'],['🍽 Book Restaurant','book_rest'],['📦 Book Warehouse','book_ware'],['📅 My Schedule','schedule']])}
+else if(a.startsWith('book_')){
+const jobs={book_const:{r:'Construction Worker',loc:'Tel Aviv',pay:'₪280/day'},book_rest:{r:'Restaurant Server',loc:'Herzliya',pay:'₪180/shift'},book_ware:{r:'Warehouse Assistant',loc:'Ashdod',pay:'₪220/day'}};
+const j=jobs[a]||jobs.book_const;booking.job=j;
+type('📅 <b>Select Available Dates</b>\n\n<b>'+j.r+'</b> — '+j.loc+
+'<div class="cal">'+
+'<div class="day head">Su</div><div class="day head">Mo</div><div class="day head">Tu</div><div class="day head">We</div><div class="day head">Th</div><div class="day head">Fr</div><div class="day head">Sa</div>'+
+'<div class="day empty"></div><div class="day empty"></div><div class="day avail">1</div><div class="day avail">2</div><div class="day booked">3</div><div class="day avail">4</div><div class="day empty">5</div>'+
+'<div class="day avail">6</div><div class="day avail">7</div><div class="day avail">8</div><div class="day booked">9</div><div class="day avail">10</div><div class="day avail">11</div><div class="day empty">12</div>'+
+'<div class="day avail">13</div><div class="day avail">14</div><div class="day avail">15</div><div class="day avail">16</div><div class="day avail">17</div><div class="day avail">18</div><div class="day empty">19</div>'+
+'</div>\n🟢 Available  🟩 Already Booked',
+[['📅 Book Mar 1-4','date_14'],['📅 Book Mar 6-11','date_611'],['📅 Book Full Week','date_full'],['🔙 All Jobs','browse']])}
+else if(a.startsWith('date_')){booking.dates=l;
+type('✅ <b>Booking Summary</b>\n\n<div class="card"><div class="title">📋 Job Confirmation</div>'+
+'<b>Role:</b> '+booking.job.r+'<br>'+
+'<b>Location:</b> '+booking.job.loc+'<br>'+
+'<b>Dates:</b> '+booking.dates+'<br>'+
+'<b>Pay:</b> '+booking.job.pay+'<br><br>'+
+'<b>💰 Estimated Earnings: ₪1,120</b></div>\n\nHow would you like to confirm?',
+[['✅ Confirm & Pay','confirm'],['💳 Payment Options','pay_opts'],['✏️ Change Dates','book_'+Object.keys({book_const:1,book_rest:1,book_ware:1}).find(k=>true)]])}
+else if(a==='pay_opts'){type('💳 <b>Payment Options</b>\n\n✅ Direct bank transfer\n✅ Credit card via Stripe\n✅ Bit / PayBox\n✅ Cash on completion\n\n🔒 Payments secured & insured\n📧 Invoice sent automatically',
+[['✅ Confirm Booking','confirm'],['🔙 Jobs','browse']])}
+else if(a==='confirm'){type('🎉 <b>Booking Confirmed!</b>\n\n<div class="card"><div class="title">✅ Confirmation</div>'+
+'<b>Ref:</b> JA-'+Math.floor(Math.random()*90000+10000)+'<br>'+
+'<b>Status:</b> <span class="badge confirmed">CONFIRMED</span><br><br>'+
+'📧 Details sent to your email<br>'+
+'📱 Reminder 24h before start<br>'+
+'📍 Location & contact shared</div>',
+[['📅 My Schedule','schedule'],['📋 Browse More Jobs','browse'],['🔙 Menu','menu']])}
+else if(a==='schedule'){
+type('📅 <b>Your Schedule</b>\n\n<div class="card"><div class="title">This Week</div>'+
+'<b>Mon 3 Mar</b> — 🏗 Construction, Tel Aviv <span class="badge confirmed">✅</span><br>'+
+'<b>Tue 4 Mar</b> — 🏗 Construction, Tel Aviv <span class="badge confirmed">✅</span><br>'+
+'<b>Wed 5 Mar</b> — <i>Free</i><br>'+
+'<b>Thu 6 Mar</b> — 🍽 Restaurant, Herzliya <span class="badge pending">Pending</span><br>'+
+'<b>Fri 7 Mar</b> — 🏗 Construction, Tel Aviv <span class="badge confirmed">✅</span><br>'+
+'<b>Sat-Sun</b> — Off</div>\n\n💰 <b>Week Earnings: ₪940</b>\n📊 <b>Month Total: ₪3,760</b>',
+[['📋 Browse Jobs','browse'],['💰 Earnings Report','earnings'],['🔙 Menu','menu']])}
+else if(a==='earnings'){type('💰 <b>Earnings Report</b>\n\n<div class="card"><div class="title">📊 February 2026</div>'+
+'<b>Total Earned:</b> ₪8,420<br>'+
+'<b>Jobs Completed:</b> 24<br>'+
+'<b>Hours Worked:</b> 168h<br>'+
+'<b>Avg Daily Rate:</b> ₪351<br><br>'+
+'<b>💳 Next Payout:</b> ₪3,760 on Mar 1<br>'+
+'<b>📈 vs Last Month:</b> +12%</div>',
+[['📅 Schedule','schedule'],['📋 Find Jobs','browse'],['🔙 Menu','menu']])}
+else if(a==='menu'){type('How can I help you today?',
+[['📋 Browse Jobs','browse'],['📅 My Schedule','schedule'],['💰 Earnings','earnings'],['❓ Support','support']])}
+else if(a==='support'){type('Need help? Choose a topic:',
+[['💳 Payment Issue','pay_opts'],['📅 Reschedule Job','schedule'],['📞 Contact Employer','contact_emp'],['🔙 Menu','menu']])}
+else if(a==='contact_emp'){type('📞 <b>Employer Contact</b>\n\nI\'ll notify the employer and connect you.\n\n🟢 Average response: 15 minutes\n📱 You\'ll receive their details via WhatsApp\n\nAnything else?',
+[['📋 Jobs','browse'],['📅 Schedule','schedule'],['🔙 Menu','menu']])}
+}
+
+function sendMsg(){
+const v=input.value.trim();if(!v)return;addMsg(v,false);input.value='';
+const vl=v.toLowerCase();
+if(vl.includes('job')||vl.includes('work')||vl.includes('find'))handle('browse','Browse Jobs');
+else if(vl.includes('schedule')||vl.includes('calendar'))handle('schedule','Schedule');
+else if(vl.includes('pay')||vl.includes('earn')||vl.includes('money'))handle('earnings','Earnings');
+else if(vl.includes('hi')||vl.includes('hello'))handle('menu','Menu');
+else if(vl.includes('help')||vl.includes('support'))handle('support','Support');
+else type('I can help you find jobs, manage your schedule, and track earnings!',
+[['📋 Browse Jobs','browse'],['📅 My Schedule','schedule'],['💰 Earnings','earnings']]);
+}
+input.addEventListener('keypress',e=>{if(e.key==='Enter')sendMsg()});
+setTimeout(()=>type('💼 Welcome to <b>JobArrange</b>!\n\nI help you find work, book shifts, and manage your schedule — all through WhatsApp.\n\n🔍 23 jobs available in your area\n📅 3 shifts booked this week\n\nWhat would you like to do?',
+[['📋 Browse Jobs','browse'],['📅 My Schedule','schedule'],['💰 Earnings Report','earnings'],['❓ Get Help','support']]),400);
+</script>
+</body>
+</html>
