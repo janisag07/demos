@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bot Status Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f0fdf4;--card:#fff;--border:#d1fae5;--green:#16a34a;--green-light:#bbf7d0;--green-bg:#f0fdf4;--yellow:#eab308;--red:#ef4444;--text:#1a1a2e;--muted:#6b7280;--dark:#052e16}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:16px}
+.container{max-width:600px;margin:0 auto}
+header{text-align:center;padding:20px 0 24px}
+header h1{font-size:1.3rem;color:var(--dark)}
+header p{color:var(--muted);font-size:.8rem;margin-top:4px}
+.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.sum-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.sum-card .num{font-size:1.6rem;font-weight:800;color:var(--green)}
+.sum-card .num.warn{color:var(--yellow)}
+.sum-card .lbl{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.bots{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.bot{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;transition:all .2s}
+.bot:hover{box-shadow:0 4px 20px #16a34a15}
+.bot-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.bot-name{display:flex;align-items:center;gap:8px}
+.bot-name .icon{font-size:1.2rem}
+.bot-name .name{font-weight:700;font-size:.9rem}
+.status-badge{font-size:.7rem;font-weight:600;padding:4px 10px;border-radius:99px;min-height:28px;display:flex;align-items:center}
+.status-badge.online{background:var(--green-light);color:var(--green)}
+.status-badge.warn{background:#fef9c3;color:#a16207}
+.bot-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.bot-stat{background:var(--green-bg);border-radius:8px;padding:8px;text-align:center}
+.bot-stat .val{font-size:.9rem;font-weight:700;color:var(--dark)}
+.bot-stat .lbl{font-size:.6rem;color:var(--muted)}
+.uptime-bar{height:24px;display:flex;gap:2px;margin-top:10px;border-radius:6px;overflow:hidden}
+.uptime-bar .seg{flex:1;border-radius:3px;min-height:24px}
+.uptime-bar .seg.up{background:var(--green)}
+.uptime-bar .seg.down{background:var(--red)}
+.uptime-bar .seg.partial{background:var(--yellow)}
+.uptime-label{display:flex;justify-content:space-between;font-size:.6rem;color:var(--muted);margin-top:4px}
+.section-title{font-size:.7rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px;margin-top:8px}
+.log{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px}
+.log-entry{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f3f4f6}
+.log-entry:last-child{border-bottom:none}
+.log-entry .dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.log-entry .dot.g{background:var(--green)}
+.log-entry .dot.y{background:var(--yellow)}
+.log-entry .txt{font-size:.8rem;flex:1}
+.log-entry .time{font-size:.65rem;color:var(--muted);flex-shrink:0}
+.pulse{display:inline-block;width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;font-size:.9rem;font-weight:600;cursor:pointer;min-height:48px;background:var(--green);color:#fff;transition:all .2s}
+.btn:hover{background:#15803d}
+footer{text-align:center;color:var(--muted);font-size:.65rem;margin-top:20px}
+@media(max-width:400px){.summary{gap:6px}.sum-card{padding:12px}.sum-card .num{font-size:1.3rem}.bot-stats{grid-template-columns:1fr 1fr 1fr;gap:4px}.bot-stat{padding:6px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1><span class="pulse"></span> &nbsp;Bot Status Dashboard</h1>
+<p>All systems monitored 24/7</p>
+</header>
+
+<div class="summary">
+<div class="sum-card"><div class="num">4</div><div class="lbl">Active Bots</div></div>
+<div class="sum-card"><div class="num">99.8%</div><div class="lbl">Avg Uptime</div></div>
+<div class="sum-card"><div class="num warn">1</div><div class="lbl">Warning</div></div>
+</div>
+
+<div class="section-title">Bot Status</div>
+<div class="bots">
+<div class="bot">
+<div class="bot-header"><div class="bot-name"><span class="icon">🤖</span><span class="name">Discord Assistant</span></div><div class="status-badge online">● Online</div></div>
+<div class="bot-stats">
+<div class="bot-stat"><div class="val">99.9%</div><div class="lbl">Uptime</div></div>
+<div class="bot-stat"><div class="val">1.2k</div><div class="lbl">Msgs/day</div></div>
+<div class="bot-stat"><div class="val">45ms</div><div class="lbl">Latency</div></div>
+</div>
+<div class="uptime-bar" title="Last 30 days"></div>
+<div class="uptime-label"><span>30 days ago</span><span>Today</span></div>
+</div>
+
+<div class="bot">
+<div class="bot-header"><div class="bot-name"><span class="icon">📱</span><span class="name">WhatsApp Bot</span></div><div class="status-badge online">● Online</div></div>
+<div class="bot-stats">
+<div class="bot-stat"><div class="val">99.7%</div><div class="lbl">Uptime</div></div>
+<div class="bot-stat"><div class="val">340</div><div class="lbl">Msgs/day</div></div>
+<div class="bot-stat"><div class="val">89ms</div><div class="lbl">Latency</div></div>
+</div>
+<div class="uptime-bar"></div>
+<div class="uptime-label"><span>30 days ago</span><span>Today</span></div>
+</div>
+
+<div class="bot">
+<div class="bot-header"><div class="bot-name"><span class="icon">📧</span><span class="name">Email Responder</span></div><div class="status-badge online">● Online</div></div>
+<div class="bot-stats">
+<div class="bot-stat"><div class="val">100%</div><div class="lbl">Uptime</div></div>
+<div class="bot-stat"><div class="val">85</div><div class="lbl">Emails/day</div></div>
+<div class="bot-stat"><div class="val">1.2s</div><div class="lbl">Avg Reply</div></div>
+</div>
+<div class="uptime-bar"></div>
+<div class="uptime-label"><span>30 days ago</span><span>Today</span></div>
+</div>
+
+<div class="bot">
+<div class="bot-header"><div class="bot-name"><span class="icon">🔄</span><span class="name">Data Sync Agent</span></div><div class="status-badge warn">⚠ Warning</div></div>
+<div class="bot-stats">
+<div class="bot-stat"><div class="val">98.1%</div><div class="lbl">Uptime</div></div>
+<div class="bot-stat"><div class="val">2.4k</div><div class="lbl">Syncs/day</div></div>
+<div class="bot-stat"><div class="val">320ms</div><div class="lbl">Latency</div></div>
+</div>
+<div class="uptime-bar"></div>
+<div class="uptime-label"><span>30 days ago</span><span>Today</span></div>
+</div>
+</div>
+
+<div class="section-title">Recent Activity</div>
+<div class="log">
+<div class="log-entry"><div class="dot g"></div><div class="txt">Discord Assistant handled 47 messages</div><div class="time">5m ago</div></div>
+<div class="log-entry"><div class="dot y"></div><div class="txt">Data Sync Agent: API rate limit hit, retrying</div><div class="time">12m ago</div></div>
+<div class="log-entry"><div class="dot g"></div><div class="txt">WhatsApp Bot processed 12 customer inquiries</div><div class="time">23m ago</div></div>
+<div class="log-entry"><div class="dot g"></div><div class="txt">Email Responder sent daily digest to 3 users</div><div class="time">1h ago</div></div>
+</div>
+
+<button class="btn" onclick="location.reload()">↻ Refresh Status</button>
+<footer>Demo built for you — by Janis via OpenClaw</footer>
+</div>
+<script>
+document.querySelectorAll('.uptime-bar').forEach((bar,bi)=>{
+ const patterns=[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,2,1,1,1]];
+ patterns[bi].forEach(s=>{
+  const seg=document.createElement('div');
+  seg.className='seg '+(s===1?'up':s===2?'partial':'down');
+  bar.appendChild(seg);
+ });
+});
+</script>
+</body>
+</html>

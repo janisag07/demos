@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw Ads Management</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#09090b;--card:#18181b;--border:#27272a;--neon:#00ff88;--neon-dim:#00ff8830;--purple:#a855f7;--purple-dim:#a855f720;--cyan:#06b6d4;--text:#d4d4d8;--muted:#71717a;--white:#fafafa}
+body{font-family:'SF Mono',SFMono-Regular,Consolas,'Liberation Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;padding:16px}
+.container{max-width:640px;margin:0 auto}
+header{text-align:center;margin-bottom:24px;padding:20px 0}
+header h1{font-size:1.2rem;color:var(--neon);letter-spacing:2px;text-transform:uppercase}
+header p{color:var(--muted);font-size:.75rem;margin-top:4px}
+.arch{margin-bottom:20px}
+.arch-title{font-size:.7rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px}
+.flow{display:flex;flex-direction:column;gap:2px;align-items:center}
+.flow-node{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 20px;width:100%;text-align:center;position:relative;transition:all .3s}
+.flow-node.highlight{border-color:var(--neon);box-shadow:0 0 24px var(--neon-dim)}
+.flow-node .label{font-size:.8rem;font-weight:700;color:var(--white)}
+.flow-node .meta{font-size:.65rem;color:var(--muted);margin-top:2px}
+.flow-arrow{color:var(--neon);font-size:1.2rem;opacity:.5}
+.apis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.api-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all .2s}
+.api-card:hover{border-color:var(--purple);box-shadow:0 0 16px var(--purple-dim)}
+.api-card.active{border-color:var(--neon);box-shadow:0 0 20px var(--neon-dim)}
+.api-card .icon{font-size:1.5rem;margin-bottom:6px}
+.api-card .name{font-size:.8rem;font-weight:700;color:var(--white)}
+.api-card .status{font-size:.65rem;color:var(--muted);margin-top:4px}
+.api-card.active .status{color:var(--neon)}
+.section{margin-bottom:20px}
+.section-title{font-size:.7rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px}
+.alert-feed{display:flex;flex-direction:column;gap:8px}
+.alert{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;gap:12px;align-items:flex-start;opacity:0;animation:slideIn .4s ease forwards}
+.alert:nth-child(1){animation-delay:0s}
+.alert:nth-child(2){animation-delay:.6s}
+.alert:nth-child(3){animation-delay:1.2s}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+.alert .dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.alert .dot.green{background:var(--neon)}
+.alert .dot.purple{background:var(--purple)}
+.alert .dot.cyan{background:var(--cyan)}
+.alert .msg{flex:1}
+.alert .msg .title{font-size:.8rem;font-weight:600;color:var(--white)}
+.alert .msg .time{font-size:.65rem;color:var(--muted)}
+.dashboard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+.dash-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.metric{text-align:center}
+.metric .val{font-size:1.4rem;font-weight:700;color:var(--neon)}
+.metric .val.purple{color:var(--purple)}
+.metric .val.cyan{color:var(--cyan)}
+.metric .lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:80px;padding-top:8px}
+.bar{flex:1;background:linear-gradient(to top,var(--neon),var(--cyan));border-radius:4px 4px 0 0;min-width:0;transition:height .6s ease;opacity:.8}
+.bar:hover{opacity:1}
+.chart-labels{display:flex;gap:4px;margin-top:4px}
+.chart-labels span{flex:1;text-align:center;font-size:.55rem;color:var(--muted)}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer;min-height:48px;text-align:center;font-family:inherit;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+.btn-neon{background:var(--neon);color:var(--bg)}
+.btn-neon:hover{box-shadow:0 0 30px var(--neon-dim)}
+footer{text-align:center;color:var(--muted);font-size:.6rem;margin-top:20px;padding:12px 0}
+@media(max-width:400px){.dash-row{grid-template-columns:1fr 1fr 1fr;gap:8px}.apis{gap:6px}.api-card{padding:12px}.metric .val{font-size:1.1rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>⚡ OpenClaw Ads Agent</h1>
+<p>Autonomous ad management • crypto-native</p>
+</header>
+
+<div class="arch">
+<div class="arch-title">Agent Architecture</div>
+<div class="flow">
+<div class="flow-node highlight"><span class="label">🧠 AI Agent</span><span class="meta">GPT-4 powered • autonomous decisions</span></div>
+<div class="flow-arrow">↓</div>
+<div class="flow-node"><span class="label">⚙️ OpenClaw Gateway</span><span class="meta">localhost • encrypted • your keys</span></div>
+<div class="flow-arrow">↓</div>
+<div class="flow-node"><span class="label">📡 Ad Platform APIs</span><span class="meta">Meta • Google • TikTok</span></div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">Connected APIs</div>
+<div class="apis" id="apis">
+<div class="api-card" onclick="toggleApi(this)"><div class="icon">📘</div><div class="name">Meta Ads</div><div class="status">Click to connect</div></div>
+<div class="api-card" onclick="toggleApi(this)"><div class="icon">🔍</div><div class="name">Google Ads</div><div class="status">Click to connect</div></div>
+<div class="api-card" onclick="toggleApi(this)"><div class="icon">🎵</div><div class="name">TikTok Ads</div><div class="status">Click to connect</div></div>
+<div class="api-card" onclick="toggleApi(this)"><div class="icon">📱</div><div class="name">WhatsApp</div><div class="status">Click to connect</div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">Live WhatsApp Alerts</div>
+<div class="alert-feed" id="alerts">
+<div class="alert"><div class="dot green"></div><div class="msg"><div class="title">Meta CPC dropped 12% → auto-paused ad set "ETH_UK_25-34"</div><div class="time">2 min ago</div></div></div>
+<div class="alert"><div class="dot purple"></div><div class="msg"><div class="title">Google: Budget 80% spent, ROAS 4.2x → scaling +20%</div><div class="time">18 min ago</div></div></div>
+<div class="alert"><div class="dot cyan"></div><div class="msg"><div class="title">Daily report: £2,840 spend → 847 conversions → £8.2k revenue</div><div class="time">1h ago</div></div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">Performance Dashboard</div>
+<div class="dashboard">
+<div class="dash-row">
+<div class="metric"><div class="val">£8.2k</div><div class="lbl">Revenue</div></div>
+<div class="metric"><div class="val purple">4.2x</div><div class="lbl">ROAS</div></div>
+<div class="metric"><div class="val cyan">847</div><div class="lbl">Conversions</div></div>
+</div>
+<div class="bar-chart" id="chart"></div>
+<div class="chart-labels" id="labels"></div>
+</div>
+</div>
+
+<button class="btn btn-neon" onclick="replayAlerts()">▶ Replay Demo</button>
+<footer>Demo built for you — by Janis via OpenClaw</footer>
+</div>
+<script>
+function toggleApi(el){
+ el.classList.toggle('active');
+ el.querySelector('.status').textContent=el.classList.contains('active')?'● Connected':'Click to connect';
+}
+const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const vals=[65,78,52,88,94,71,83];
+const chart=document.getElementById('chart');
+const labels=document.getElementById('labels');
+days.forEach((d,i)=>{
+ const bar=document.createElement('div');
+ bar.className='bar';
+ bar.style.height='0%';
+ setTimeout(()=>bar.style.height=vals[i]+'%',100+i*100);
+ chart.appendChild(bar);
+ const lbl=document.createElement('span');
+ lbl.textContent=d;
+ labels.appendChild(lbl);
+});
+function replayAlerts(){
+ const feed=document.getElementById('alerts');
+ feed.innerHTML=feed.innerHTML;
+ document.querySelectorAll('.bar').forEach((b,i)=>{
+  b.style.height='0%';
+  setTimeout(()=>b.style.height=vals[i]+'%',100+i*100);
+ });
+}
+</script>
+</body>
+</html>

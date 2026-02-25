@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw Setup Flow</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e1a;--card:#111827;--border:#1e293b;--blue:#3b82f6;--blue-glow:#3b82f620;--green:#10b981;--text:#e2e8f0;--muted:#64748b;--white:#f8fafc}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px}
+.container{max-width:600px;width:100%}
+header{text-align:center;margin-bottom:32px}
+header h1{font-size:1.5rem;color:var(--white);margin-bottom:4px}
+header p{color:var(--muted);font-size:.875rem}
+.logo{font-size:2rem;margin-bottom:8px}
+.progress{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:32px}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;background:var(--card);border:2px solid var(--border);color:var(--muted);transition:all .3s;cursor:pointer;min-width:36px;min-height:36px}
+.step-dot.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 0 20px var(--blue-glow)}
+.step-dot.done{background:var(--green);border-color:var(--green);color:#fff}
+.step-line{width:40px;height:2px;background:var(--border);transition:background .3s}
+.step-line.done{background:var(--green)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card h2{font-size:1.1rem;color:var(--white);margin-bottom:4px}
+.card .sub{color:var(--muted);font-size:.8rem;margin-bottom:20px}
+.channel-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.channel{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.channel:hover,.channel.selected{border-color:var(--blue);background:#1e293b}
+.channel.selected{box-shadow:0 0 16px var(--blue-glow)}
+.channel .icon{font-size:1.5rem}
+.channel .name{font-size:.8rem;font-weight:600}
+.skill-list{display:flex;flex-direction:column;gap:8px}
+.skill{display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .2s;min-height:48px}
+.skill:hover{border-color:var(--blue)}
+.skill.active{border-color:var(--green);background:#10b98110}
+.skill .check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;transition:all .2s;flex-shrink:0}
+.skill.active .check{background:var(--green);border-color:var(--green);color:#fff}
+.skill-info{flex:1}
+.skill-info .title{font-size:.85rem;font-weight:600}
+.skill-info .desc{font-size:.75rem;color:var(--muted)}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;min-height:48px;text-align:center}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#2563eb}
+.btn-ghost{background:transparent;color:var(--muted);margin-top:8px}
+.btn-ghost:hover{color:var(--text)}
+.gateway-status{text-align:center;padding:20px 0}
+.gateway-spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;margin:0 auto 16px;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gateway-ok{display:none}
+.gateway-ok .check-big{width:56px;height:56px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 12px;color:#fff}
+.done-screen{text-align:center;padding:24px 0}
+.done-screen .emoji{font-size:3rem;margin-bottom:12px}
+.done-screen h2{color:var(--white);margin-bottom:8px}
+.done-screen p{color:var(--muted);font-size:.85rem;margin-bottom:24px}
+.stat-row{display:flex;gap:12px;margin-bottom:20px}
+.stat{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.stat .num{font-size:1.3rem;font-weight:700;color:var(--blue)}
+.stat .label{font-size:.7rem;color:var(--muted)}
+.hidden{display:none}
+.badge{display:inline-block;background:var(--green);color:#fff;font-size:.65rem;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:8px}
+@media(max-width:400px){.channel-grid{grid-template-columns:1fr 1fr;gap:8px}.card{padding:16px}.stat-row{gap:8px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<div class="logo">🐾</div>
+<h1>OpenClaw Setup</h1>
+<p>Get your AI assistant running in 2 minutes</p>
+</header>
+<div class="progress" id="progress">
+<div class="step-dot active" data-step="0">1</div>
+<div class="step-line" id="line0"></div>
+<div class="step-dot" data-step="1">2</div>
+<div class="step-line" id="line1"></div>
+<div class="step-dot" data-step="2">3</div>
+<div class="step-line" id="line2"></div>
+<div class="step-dot" data-step="3">4</div>
+</div>
+<div id="panels">
+<!-- Step 0: Gateway -->
+<div class="card panel" id="panel0">
+<h2>Start Gateway</h2>
+<p class="sub">Your local AI gateway — runs on your machine, stays private.</p>
+<div class="gateway-status" id="gw-loading">
+<div class="gateway-spinner"></div>
+<p style="font-size:.85rem">Starting gateway on <code style="color:var(--blue)">localhost:3000</code>…</p>
+</div>
+<div class="gateway-ok" id="gw-ok">
+<div class="check-big">✓</div>
+<p style="font-size:.9rem;font-weight:600;color:var(--green);margin-bottom:4px">Gateway Running</p>
+<p style="font-size:.8rem;color:var(--muted)">localhost:3000 • latency 12ms</p>
+</div>
+<button class="btn btn-primary hidden" id="gw-next" onclick="goTo(1)">Continue</button>
+</div>
+<!-- Step 1: Channels -->
+<div class="card panel hidden" id="panel1">
+<h2>Connect Channels</h2>
+<p class="sub">Where should your AI be available?</p>
+<div class="channel-grid">
+<div class="channel" onclick="toggleCh(this)"><span class="icon">💬</span><span class="name">Discord</span></div>
+<div class="channel" onclick="toggleCh(this)"><span class="icon">📱</span><span class="name">WhatsApp</span></div>
+<div class="channel" onclick="toggleCh(this)"><span class="icon">📧</span><span class="name">Gmail</span></div>
+<div class="channel" onclick="toggleCh(this)"><span class="icon">🔗</span><span class="name">Slack</span></div>
+</div>
+<button class="btn btn-primary" style="margin-top:20px" id="ch-next" onclick="goTo(2)">Continue</button>
+</div>
+<!-- Step 2: Skills -->
+<div class="card panel hidden" id="panel2">
+<h2>Enable Skills</h2>
+<p class="sub">What should your assistant be able to do?</p>
+<div class="skill-list">
+<div class="skill" onclick="toggleSkill(this)"><div class="check"></div><div class="skill-info"><div class="title">📅 Calendar</div><div class="desc">Read & manage Google Calendar</div></div></div>
+<div class="skill" onclick="toggleSkill(this)"><div class="check"></div><div class="skill-info"><div class="title">🌐 Web Search</div><div class="desc">Search and summarize the web</div></div></div>
+<div class="skill" onclick="toggleSkill(this)"><div class="check"></div><div class="skill-info"><div class="title">📁 File Access</div><div class="desc">Read and write local files</div></div></div>
+<div class="skill" onclick="toggleSkill(this)"><div class="check"></div><div class="skill-info"><div class="title">🖥️ Shell</div><div class="desc">Execute terminal commands</div></div></div>
+</div>
+<button class="btn btn-primary" style="margin-top:20px" onclick="goTo(3)">Finish Setup</button>
+</div>
+<!-- Step 3: Done -->
+<div class="card panel hidden" id="panel3">
+<div class="done-screen">
+<div class="emoji">🎉</div>
+<h2>You're All Set!</h2>
+<p>Your AI assistant is live and connected.</p>
+<div class="stat-row">
+<div class="stat"><div class="num" id="ch-count">0</div><div class="label">Channels</div></div>
+<div class="stat"><div class="num" id="sk-count">0</div><div class="label">Skills</div></div>
+<div class="stat"><div class="num" style="color:var(--green)">✓</div><div class="label">Gateway</div></div>
+</div>
+<button class="btn btn-primary" onclick="resetDemo()">Run Again</button>
+</div>
+</div>
+</div>
+<p style="text-align:center;color:var(--muted);font-size:.7rem;margin-top:24px">Demo built for Syd — by Janis via OpenClaw</p>
+</div>
+<script>
+let current=0,channels=0,skills=0;
+function goTo(s){
+ document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'));
+ document.getElementById('panel'+s).classList.remove('hidden');
+ document.querySelectorAll('.step-dot').forEach((d,i)=>{
+  d.classList.remove('active','done');
+  if(i<s)d.classList.add('done');
+  if(i===s)d.classList.add('active');
+ });
+ for(let i=0;i<3;i++){
+  document.getElementById('line'+i).classList.toggle('done',i<s);
+ }
+ if(s===3){
+  document.getElementById('ch-count').textContent=channels;
+  document.getElementById('sk-count').textContent=skills;
+ }
+ current=s;
+}
+function toggleCh(el){el.classList.toggle('selected');channels=document.querySelectorAll('.channel.selected').length}
+function toggleSkill(el){el.classList.toggle('active');el.querySelector('.check').innerHTML=el.classList.contains('active')?'✓':'';skills=document.querySelectorAll('.skill.active').length}
+function resetDemo(){channels=0;skills=0;document.querySelectorAll('.channel').forEach(c=>c.classList.remove('selected'));document.querySelectorAll('.skill').forEach(s=>{s.classList.remove('active');s.querySelector('.check').innerHTML=''});goTo(0);startGateway()}
+function startGateway(){
+ document.getElementById('gw-loading').style.display='block';
+ document.getElementById('gw-ok').style.display='none';
+ document.getElementById('gw-next').classList.add('hidden');
+ setTimeout(()=>{
+  document.getElementById('gw-loading').style.display='none';
+  document.getElementById('gw-ok').style.display='block';
+  document.getElementById('gw-next').classList.remove('hidden');
+ },2000);
+}
+startGateway();
+</script>
+</body>
+</html>
