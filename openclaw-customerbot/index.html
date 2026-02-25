@@ -147,7 +147,16 @@ else if(is('cancel','storno','absag'))waHandle('faq_cancel','Cancellation');
 else if(is('hour','time','open','wann','öffnung','geöffnet'))waHandle('faq_hours','Hours');
 else if(is('pay','zahlung','bezahl','credit','cash'))waHandle('faq_pay','Payment');
 else if(is('human','agent','person','mensch','someone','real'))waHandle('human','Human');
-else if(is('hi','hello','hey','hallo','moin','good morning','good evening')){waHandle('menu','Menu');}
+else if(is('wie geht','how are','how r u','geht es','what\'s up','was geht')){waType(pick([
+'Thanks for asking! 😊 I\'m ServiceBot AI — always running, always ready. More importantly, how can I help YOU today? Looking for a service or have a question?',
+'I\'m doing great — ready to help! 🤖 Do you need a quote, want to book a service, or just have a question?',
+'All good here! I\'m available 24/7 for you. What brings you in today — need a service or looking for info?'
+]),[['📋 Our Services','services'],['💰 Pricing','pricing'],['❓ FAQ','faq']]);}
+else if(is('hi','hello','hey','hallo','moin','good morning','good evening')){waType(pick([
+'Hey! 👋 Welcome! How can I help you today?',
+'Hello! 😊 Good to hear from you. Need a service, a quote, or just have a question?',
+'Hi there! I\'m ServiceBot — your 24/7 customer assistant. What can I do for you?'
+]),[['📋 Services','services'],['💰 Pricing','pricing'],['❓ FAQ','faq']]);}
 else if(is('clean','putz','reinig','sauber','wisch')){waType(pick([
 'Great question! We offer everything from regular cleaning to deep cleans. What kind of space do you need cleaned?',
 'Cleaning is our specialty! 🧹 Tell me about the space — home, office, or something specific? I\'ll get you an instant quote.',
