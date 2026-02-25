@@ -135,14 +135,41 @@ else if(a==='contact_emp'){type('📞 <b>Employer Contact</b>\n\nI\'ll notify th
 
 function sendMsg(){
 const v=input.value.trim();if(!v)return;addMsg(v,false);input.value='';
-const vl=v.toLowerCase();
-if(vl.includes('job')||vl.includes('work')||vl.includes('find'))handle('browse','Browse Jobs');
-else if(vl.includes('schedule')||vl.includes('calendar'))handle('schedule','Schedule');
-else if(vl.includes('pay')||vl.includes('earn')||vl.includes('money'))handle('earnings','Earnings');
-else if(vl.includes('hi')||vl.includes('hello'))handle('menu','Menu');
-else if(vl.includes('help')||vl.includes('support'))handle('support','Support');
-else type('I can help you find jobs, manage your schedule, and track earnings!',
-[['📋 Browse Jobs','browse'],['📅 My Schedule','schedule'],['💰 Earnings','earnings']]);
+const m=v.toLowerCase(),pick=a=>a[Math.floor(Math.random()*a.length)],is=(...k)=>k.some(x=>m.includes(x));
+if(is('job','work','find','gig','shift','available','opening'))handle('browse','Browse Jobs');
+else if(is('schedule','calendar','when','plan','week','today','tomorrow'))handle('schedule','Schedule');
+else if(is('pay','earn','money','salary','income','how much'))handle('earnings','Earnings');
+else if(is('help','support','problem','issue'))handle('support','Support');
+else if(is('cancel','absag','change','reschedule')){type(pick([
+'No problem! Which booking do you want to change? Let me pull up your schedule so we can sort this out.',
+'Sure, I can help with that. Changes are free up to 24h before the shift. Let me show your upcoming bookings.'
+]),[['📅 My Schedule','schedule'],['📞 Contact Employer','contact_emp']]);}
+else if(is('hi','hello','hey','hallo','morning','evening')){type(pick([
+'Hey! 👋 Good to see you. You\'ve got 23 new jobs in your area today. Want to take a look?',
+'Welcome back! 💼 Your next shift is coming up soon. Need to check your schedule or find new work?',
+'Hi there! Ready to grab some shifts? I\'ve got some well-paying jobs that match your profile.'
+]),[['📋 Browse Jobs','browse'],['📅 Schedule','schedule']]);}
+else if(is('thank','thx','danke','cheers','great','awesome')){type(pick([
+'Happy to help! 😊 Good luck with your shifts this week!',
+'You got it! Let me know if you need anything else. 💪',
+'Anytime! That\'s what I\'m here for. Have a great day!'
+]),[['📋 More Jobs','browse'],['🔙 Menu','menu']]);}
+else if(is('tired','hard','tough','difficult','long day')){type(pick([
+'I hear you — long shifts can be tough. Want me to find you some lighter jobs this week? Or check when your next day off is?',
+'Hang in there! 💪 Looking at your schedule, you\'ve got a day off coming up. Want to see your week overview?'
+]),[['📅 My Schedule','schedule'],['📋 Easy Jobs','browse']]);}
+else if(is('more','better','higher','pay more')){type('I get it — let\'s find you better-paying work! I can filter by pay rate and show you the top-paying shifts in your area. The warehouse and construction gigs usually pay the most.',
+[['📋 Browse Jobs','browse'],['💰 Earnings','earnings']]);}
+else if(is('bye','later','see you','ciao')){type(pick([
+'See you! 👋 I\'ll send you a notification when new jobs matching your profile come in.',
+'Later! Don\'t forget — your next shift is coming up. I\'ll send a reminder 24h before. 📱'
+]),null);}
+else{type(pick([
+'Good question! I can help you find jobs, manage your schedule, check earnings, or handle bookings. What do you need?',
+'I\'m your personal job assistant — I match you with available shifts, handle bookings, and track your earnings. How can I help today?',
+'Tell me what you need! Whether it\'s finding work, checking your schedule, or sorting out a payment — I\'ve got you covered.',
+'I\'m here to make your work life easier. Looking for new shifts? Checking on payments? Just let me know what you need.'
+]),[['📋 Browse Jobs','browse'],['📅 Schedule','schedule'],['💰 Earnings','earnings']]);}
 }
 input.addEventListener('keypress',e=>{if(e.key==='Enter')sendMsg()});
 setTimeout(()=>type('💼 Welcome to <b>JobArrange</b>!\n\nI help you find work, book shifts, and manage your schedule — all through WhatsApp.\n\n🔍 23 jobs available in your area\n📅 3 shifts booked this week\n\nWhat would you like to do?',

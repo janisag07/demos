@@ -139,36 +139,108 @@ else if(a==='menu'){type('⚽ What would you like to do?',
 [['📋 Daily Check-in','checkin'],['🏋️ Training Plan','training'],['📈 Weekly Report','weekly'],['💎 Premium Features','premium']])}
 }
 
-const replies=[
-{k:['check','how am','how are','feeling','ready'],a:'checkin',l:'Check-in'},
-{k:['train','workout','session','exercise','drill'],a:'training',l:'Training'},
-{k:['report','stats','week','progress','score'],a:'weekly',l:'Report'},
-{k:['premium','upgrade','pro','subscribe','pay'],a:'premium',l:'Premium'},
-{k:['hi','hello','hey','sup','yo','hallo','moin'],a:'menu',l:'Menu'},
-{k:['tired','sore','hurt','pain','injury','injured'],r:'That sounds rough. Let\'s do a quick check-in so I can adjust your plan. Take it easy — recovery is part of the game 💪',b:[['📋 Quick Check-in','checkin'],['🏋️ Light Session','training']]},
-{k:['good','great','amazing','awesome','perfect','nice'],r:'Love that energy! 🔥 Let\'s channel it into today\'s session.',b:[['🏋️ Let\'s Train','training'],['📋 Check-in First','checkin']]},
-{k:['bad','terrible','shit','awful','worst'],r:'Hey, everyone has off days. The important thing is you showed up. Let me check where you\'re at today.',b:[['📋 Check-in','checkin']]},
-{k:['goal','match','game','tomorrow'],r:'Big game energy! 🏟️ Let\'s make sure you\'re 100% ready. Want me to run your match readiness check?',b:[['📋 Match Readiness','checkin'],['📈 Stats','weekly']]},
-{k:['sleep','slept','rest','recovery'],r:'Sleep is everything for recovery. Let\'s log it properly so I can optimize your plan.',b:[['📋 Full Check-in','checkin'],['📈 Sleep Trends','weekly']]},
-{k:['thanks','thank','thx','danke'],r:'Always here for you, '+player.name+'! 🤝 Anything else?',b:[['📋 Check-in','checkin'],['🔙 Menu','menu']]},
-{k:['bye','later','cya','tschüss','ciao'],r:'See you tomorrow, '+player.name+'! Rest well tonight 😴⚽',b:null},
-{k:['who','what are','about'],r:'I\'m your AI Football Coach 🤖⚽ I track your wellness daily, predict injury risks, create personalized training plans, and help you level up your game. Think of me as your 24/7 personal coach.',b:[['📋 Try Check-in','checkin'],['📈 See Report','weekly']]},
-{k:['help','menu','start','options'],a:'menu',l:'Menu'}
+let context={topic:null,mood:null,lastQ:null};
+function ai(msg){
+const m=msg.toLowerCase(),w=m.split(/\s+/),len=w.length;
+const is=(...k)=>k.some(x=>m.includes(x));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const n=player.name;
+// Greetings
+if(is('hi','hello','hey','sup','yo','hallo','moin','servus','morgen','abend','guten')){
+context.topic='greeting';
+return{t:pick([
+'Hey '+n+'! 👋 Good to see you. How\'s the body feeling today?',
+'What\'s up '+n+'! Ready to put in some work today? 💪',
+'Hey! How was your day so far? Any training planned?',
+n+'! 🔥 Perfect timing. I was just about to send you your daily check-in.'
+]),b:[['📋 Start Check-in','checkin'],['🏋️ Show me training','training']]};}
+// How are you / wie gehts
+if(is('wie geht','how are you','how r u','what about you','und dir','und selbst')){
+return{t:pick([
+'I\'m an AI, so I\'m always at 100%! 😄 But more importantly — how are YOU doing? Any soreness from yesterday?',
+'Running smooth as always! The real question is: how\'s your body recovering? Did you sleep well?',
+'All good on my end! I\'ve been analyzing your data — want to see how your week is trending? 📈'
+]),b:[['📋 Check-in','checkin'],['📈 My Stats','weekly']]};}
+// Feeling good
+if(is('good','great','amazing','awesome','perfect','nice','super','geil','toll','gut','mega','top')){
+context.mood='good';
+return{t:pick([
+'Love to hear that! 🔥 Your body is clearly recovering well. This is the perfect day to push a bit harder in training.',
+'That\'s what I like to hear, '+n+'! Your consistency is paying off. Want to see the numbers? Your wellness score has been climbing all week.',
+'Awesome! 💪 When you feel this good, we should capitalize. I\'ve got a high-intensity session ready for you today.'
+]),b:[['🏋️ Let\'s Go','training'],['📈 Show Stats','weekly']]};}
+// Feeling bad
+if(is('bad','terrible','shit','awful','schlecht','mies','müde','tired','exhausted','kaputt','dead')){
+context.mood='bad';
+return{t:pick([
+'Hey, that\'s totally normal. Recovery isn\'t linear. Let me check your load from this week — you might be overtraining. Rest days build champions too. 🧘',
+'I hear you. Your body is telling you something important right now. Let\'s do a quick check-in so I can adjust today\'s plan accordingly.',
+'No worries, '+n+'. Even pros have these days. The smart move is to listen to your body. Want me to switch today to a recovery session instead?'
+]),b:[['📋 Quick Check-in','checkin'],['🧘 Recovery Plan','training']]};}
+// Pain/injury
+if(is('hurt','pain','sore','injury','injured','verletzt','schmerz','weh','knee','ankle','hamstring','muscle')){
+context.topic='injury';
+const area=is('knee')?'knee':is('ankle')?'ankle':is('hamstring')?'hamstring':is('back')?'back':'affected area';
+return{t:'⚠️ That\'s important info, '+n+'. Where exactly does it hurt — is it the '+area+'? On a scale of 1-10, how bad is it?\n\nBased on your recent training load, this could be fatigue-related. Let\'s do a proper assessment before you do anything else today.',
+b:[['📋 Full Assessment','checkin'],['🚨 It\'s serious','pain_sig']]};}
+// Training
+if(is('train','workout','session','exercise','drill','üben','übung','laufen','run','sprint')){
+return{t:pick([
+'Let\'s get to work! Based on your check-in data, I\'ve prepared a session that targets your weak points while keeping your injury risk low.',
+'Ready to train? 💪 Today I\'d recommend focusing on '+pick(['agility and ball control','sprint intervals and endurance','passing accuracy and positioning','strength and core stability'])+'. Want the full breakdown?',
+n+', your fitness trend is going up 📈 — let\'s keep that momentum. I have today\'s plan ready.'
+]),b:[['📋 Check-in First','checkin'],['🏋️ Show Plan','training']]};}
+// Match/game
+if(is('match','game','spiel','gegner','opponent','tomorrow','morgen')){
+return{t:'🏟️ Match mode activated! Let me run your match readiness analysis:\n\n• Sleep quality this week: tracking\n• Muscle fatigue: calculating\n• Mental readiness: assessing\n\nThe most important thing now is proper rest and nutrition. When is kickoff?',
+b:[['📋 Match Readiness Check','checkin'],['📈 Form Guide','weekly']]};}
+// Sleep
+if(is('sleep','slept','schlaf','geschlafen','insomnia','rest','müde')){
+return{t:pick([
+'Sleep is literally your #1 recovery tool. Athletes who get 8+ hours perform 20% better in reaction time and sprint speed. How many hours did you get?',
+'Let\'s talk sleep! Your recent pattern shows '+pick(['improvement','some inconsistency','room for optimization'])+'. Want me to factor last night into your plan?'
+]),b:[['📋 Log Sleep','checkin'],['📈 Sleep Trends','weekly']]};}
+// Food/nutrition
+if(is('eat','food','nutrition','diet','protein','carb','essen','hunger','frühstück','meal')){
+return{t:'Nutrition is half the game! For a '+player.pos.toLowerCase()+' like you, I\'d recommend:\n\n🥩 Protein: '+pick(['2g','1.8g','2.2g'])+'/kg body weight\n🍝 Carbs: Load up 3-4h before training\n💧 Hydration: minimum 3L today\n\nWhat did you eat today so far?',
+b:[['📋 Check-in','checkin'],['🏋️ Training','training']]};}
+// Stats/numbers
+if(is('stats','numbers','data','zahlen','fortschritt','progress','how am i','wie steh')){
+return{t:'Let me pull your numbers, '+n+'... 📊\n\nYour wellness score is trending '+pick(['up','steadily upward'])+' this week. Training consistency is at '+pick(['85%','92%','78%'])+'. Want the full breakdown?',
+b:[['📈 Full Report','weekly'],['📋 Today\'s Check-in','checkin']]};}
+// Thanks
+if(is('thanks','thank','thx','danke','cheers','appreciated')){
+return{t:pick([
+'That\'s what I\'m here for, '+n+'! Remember — consistency beats intensity. See you tomorrow 🤝',
+'Anytime! 💪 You\'re putting in the work, I\'m just helping you do it smarter. Keep it up!',
+'You got it! One day at a time, '+n+'. Your future self will thank you for showing up today.'
+]),b:[['📋 Check-in','checkin'],['🔙 Menu','menu']]};}
+// Bye
+if(is('bye','later','cya','tschüss','ciao','night','nacht','gn')){
+return{t:pick([
+'Rest up, '+n+'! 😴 I\'ll send you tomorrow\'s check-in at 8 AM. Sleep well — your body repairs while you dream. ⚽',
+'See you tomorrow, champ! Get some good sleep tonight. 💤',
+'Later '+n+'! Remember: 8 hours sleep minimum. I\'ll be here when you wake up 👋'
+]),b:null};}
+// Questions about the bot
+if(is('who are','what are','what can','what do','wer bist','was kannst','was machst')){
+return{t:'I\'m your personal AI Football Coach 🤖⚽\n\nI analyze your daily wellness data, predict injury risks before they happen, create personalized training plans, and track your progress over time.\n\nThink of me as a coach that\'s available 24/7, knows your body\'s patterns, and gets smarter the more you train with me.',
+b:[['📋 Try Check-in','checkin'],['📈 See Report','weekly'],['💎 Premium','premium']]};}
+// Fallback - actually engage with what they said
+const smart=[
+'That\'s interesting, '+n+'. Tell me more — how does that affect your training today?',
+'I hear you! Everything connects back to your performance. Speaking of which — have you done your check-in today? It takes 30 seconds and helps me personalize everything for you.',
+'Good point! You know what, let me look at your recent data and see how we can factor that in. Start with a quick check-in?',
+''+n+', I want to make sure I give you the best advice. Let\'s start with where your body is at today — then I can give you a proper answer.',
+'Noted! 📝 I\'m tracking everything to build a better picture of you as an athlete. The more we talk, the smarter my recommendations get.'
 ];
+return{t:pick(smart),b:[['📋 Check-in','checkin'],['🏋️ Training','training'],['📈 Stats','weekly']]};
+}
 function sendMsg(){
 const v=input.value.trim();if(!v)return;addMsg(v,false);input.value='';
-const vl=v.toLowerCase();
-for(const r of replies){
-if(r.k.some(k=>vl.includes(k))){
-if(r.a){handle(r.a,r.l);return}
-type(r.r,r.b);return}}
-const fallbacks=[
-'Interesting! Tell me more about how you\'re feeling today, '+player.name+'. I can adjust your plan based on that.',
-'Got it! Want me to run your daily check-in? That\'s the best way I can help you right now 💪',
-'I hear you! Let\'s focus on what matters — are you ready to train today or should we check your body status first?',
-'Every message helps me understand you better as an athlete. How about we start with your daily check-in?'
-];
-type(fallbacks[Math.floor(Math.random()*fallbacks.length)],[['📋 Daily Check-in','checkin'],['🏋️ Training','training'],['📈 Report','weekly']]);
+const r=ai(v);
+if(r.b===null)type(r.t,null);
+else type(r.t,r.b);
 }
 input.addEventListener('keypress',e=>{if(e.key==='Enter')sendMsg()});
 setTimeout(()=>type('⚽ Hey '+player.name+'! Welcome to <b>AI Football Coach</b>.\n\nI\'m your personal AI-powered coaching assistant. I track your wellness, analyze injury risk, and create personalized training plans.\n\nReady for your daily check-in?',

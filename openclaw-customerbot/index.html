@@ -140,15 +140,39 @@ else if(a==='menu'){waType('How can I help you today?',[['📋 Our Services','se
 }
 function waSend(){
 const v=wainput.value.trim();if(!v)return;waAdd(v,false);wainput.value='';
-const vl=v.toLowerCase();
-if(vl.includes('price')||vl.includes('cost')||vl.includes('quote'))waHandle('pricing','Pricing');
-else if(vl.includes('book')||vl.includes('service'))waHandle('services','Services');
-else if(vl.includes('cancel'))waHandle('faq_cancel','Cancellation');
-else if(vl.includes('hour')||vl.includes('time')||vl.includes('open'))waHandle('faq_hours','Hours');
-else if(vl.includes('pay'))waHandle('faq_pay','Payment');
-else if(vl.includes('hi')||vl.includes('hello')||vl.includes('hey'))waHandle('menu','Menu');
-else if(vl.includes('human')||vl.includes('agent')||vl.includes('person'))waHandle('human','Human');
-else waType('I can help with services, pricing, bookings, and more! What do you need?',[['📋 Services','services'],['💰 Pricing','pricing'],['❓ FAQ','faq']]);
+const m=v.toLowerCase(),pick=a=>a[Math.floor(Math.random()*a.length)],is=(...k)=>k.some(x=>m.includes(x));
+if(is('price','cost','quote','how much','wieviel','kosten'))waHandle('pricing','Pricing');
+else if(is('book','reserv','schedule','termin','buchen'))waHandle('services','Services');
+else if(is('cancel','storno','absag'))waHandle('faq_cancel','Cancellation');
+else if(is('hour','time','open','wann','öffnung','geöffnet'))waHandle('faq_hours','Hours');
+else if(is('pay','zahlung','bezahl','credit','cash'))waHandle('faq_pay','Payment');
+else if(is('human','agent','person','mensch','someone','real'))waHandle('human','Human');
+else if(is('hi','hello','hey','hallo','moin','good morning','good evening')){waHandle('menu','Menu');}
+else if(is('clean','putz','reinig','sauber','wisch')){waType(pick([
+'Great question! We offer everything from regular cleaning to deep cleans. What kind of space do you need cleaned?',
+'Cleaning is our specialty! 🧹 Tell me about the space — home, office, or something specific? I\'ll get you an instant quote.',
+'Sure! Regular cleaning starts at $80. Want me to walk you through our options so I can find the best fit for you?'
+]),[['📋 See Options','services'],['💰 Quick Quote','pricing']]);}
+else if(is('office','büro','commercial','business','firma')){waType('We handle commercial spaces of all sizes! 🏢 Regular office cleaning starts at $150/visit for spaces up to 200m². We also offer monthly contracts with discounts up to 20%. How big is your office?',
+[['📋 Get Quote','services'],['💰 Pricing','pricing']]);}
+else if(is('emergency','urgent','dringend','sofort','asap','water','flood')){waType('🚨 Emergency services are available 24/7! Our team can be there within 2 hours. There\'s a 30% surcharge for emergency calls, but we prioritize these immediately. Want me to dispatch a team now?',
+[['✅ Yes, dispatch now','book_confirm'],['💰 How much?','pricing']]);}
+else if(is('thank','danke','thx','appreciated','cheers')){waType(pick([
+'You\'re welcome! 😊 Is there anything else I can help with?',
+'Happy to help! Don\'t hesitate to reach out anytime — I\'m here 24/7.',
+'Glad I could help! If you need anything in the future, just send a message. Have a great day! ☀️'
+]),[['📋 New Inquiry','services'],['🔙 Menu','menu']]);}
+else if(is('bye','tschüss','later','ciao')){waType(pick([
+'Goodbye! Thanks for reaching out. Have a wonderful day! 👋',
+'Take care! Remember, you can message me anytime. 😊']),null);}
+else if(is('who','what do you','what can you','wer bist','was machst','was kannst')){waType('I\'m ServiceBot AI 🤖 — your 24/7 customer service assistant. I can:\n\n• Give instant quotes for any service\n• Book appointments in seconds\n• Answer questions about hours, payments, policies\n• Connect you to a human agent if needed\n\nWhat can I help you with?',
+[['📋 Services','services'],['💰 Pricing','pricing'],['👤 Human Agent','human']]);}
+else{waType(pick([
+'I\'d love to help with that! Could you tell me a bit more? I can assist with service bookings, pricing, scheduling, and general questions.',
+'Thanks for reaching out! I handle all customer inquiries — from quick quotes to full bookings. What specifically do you need?',
+'Good question! Let me help you with that. Are you looking for a specific service, or do you need general information?',
+'I\'m here to help! Whether it\'s a quote, a booking, or just a question — fire away. Or I can show you our most popular services.'
+]),[['📋 Our Services','services'],['💰 Pricing','pricing'],['❓ FAQ','faq']]);}
 }
 wainput.addEventListener('keypress',e=>{if(e.key==='Enter')waSend()});
 setTimeout(()=>waType('👋 Welcome to <b>ServiceBot AI</b>!\n\nI handle customer inquiries 24/7 — services, pricing, bookings, and support.\n\nHow can I help you today?',
