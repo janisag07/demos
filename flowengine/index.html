@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowEngine — AI Marketing Automation</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fafbfc;--card:#fff;--border:#e8ecf0;--accent:#2d6a4f;--accent2:#40916c;--accent-light:#d8f3dc;--text:#1a1a2e;--muted:#6b7280;--blue:#2563eb;--blue-light:#dbeafe;--orange:#ea580c;--orange-light:#fff7ed}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+.container{max-width:1100px;margin:0 auto;padding:20px 16px}
+header{text-align:center;padding:32px 0 24px}
+header h1{font-size:1.8rem;color:var(--accent);margin-bottom:4px}
+header p{color:var(--muted);font-size:.9rem}
+.pipeline{display:flex;gap:8px;margin-bottom:24px;overflow-x:auto;padding-bottom:8px}
+.pipe-step{flex:1;min-width:120px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;position:relative}
+.pipe-step.active{border-color:var(--accent);background:var(--accent-light)}
+.pipe-step .icon{font-size:1.4rem;margin-bottom:4px}
+.pipe-step .name{font-size:.8rem;font-weight:600}
+.pipe-step .desc{font-size:.7rem;color:var(--muted);margin-top:2px}
+.pipe-arrow{display:flex;align-items:center;color:var(--muted);font-size:1.2rem;flex-shrink:0}
+@media(max-width:600px){.pipeline{flex-wrap:wrap}.pipe-arrow{display:none}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.stat .value{font-size:1.5rem;font-weight:700;color:var(--accent)}
+.stat .label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.stat .sub{font-size:.78rem;color:var(--accent2);margin-top:2px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card h3{font-size:.95rem;margin-bottom:16px;color:var(--accent)}
+.flow-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.flow-item:last-child{border:none}
+.flow-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.flow-info h4{font-size:.85rem;margin-bottom:2px}
+.flow-info p{font-size:.78rem;color:var(--muted)}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600;margin-right:4px}
+.tag-green{background:var(--accent-light);color:var(--accent)}
+.tag-blue{background:var(--blue-light);color:var(--blue)}
+.tag-orange{background:var(--orange-light);color:var(--orange)}
+.content-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.content-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px}
+.content-card h5{font-size:.82rem;margin-bottom:6px}
+.content-card p{font-size:.75rem;color:var(--muted)}
+.content-card .meta{display:flex;justify-content:space-between;margin-top:8px;font-size:.72rem}
+.bar-h{height:8px;background:var(--bg);border-radius:4px;margin-top:6px;overflow:hidden}
+.bar-h .fill{height:100%;border-radius:4px}
+.log{font-family:'SF Mono',Monaco,monospace;font-size:.78rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;max-height:200px;overflow-y:auto}
+.log .line{padding:3px 0;border-bottom:1px solid rgba(0,0,0,.03)}
+.log .time{color:var(--muted);margin-right:8px}
+.log .ok{color:var(--accent)}
+.log .warn{color:var(--orange)}
+footer{text-align:center;padding:24px 0;color:var(--muted);font-size:.75rem}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>⚡ FlowEngine</h1>
+    <p>AI-Powered Marketing Automation for E-Commerce</p>
+  </header>
+
+  <div class="pipeline">
+    <div class="pipe-step active">
+      <div class="icon">📡</div>
+      <div class="name">Data In</div>
+      <div class="desc">Shopify · Klaviyo · Ads</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step active">
+      <div class="icon">🧠</div>
+      <div class="name">AI Analysis</div>
+      <div class="desc">Claude · RAG Pipeline</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step active">
+      <div class="icon">✍️</div>
+      <div class="name">Content Gen</div>
+      <div class="desc">SEO · Ads · Email</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="icon">🚀</div>
+      <div class="name">Deploy</div>
+      <div class="desc">Auto-publish · A/B test</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="icon">📊</div>
+      <div class="name">Optimize</div>
+      <div class="desc">Feedback loop</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="value">+147%</div>
+      <div class="label">Organic Traffic</div>
+      <div class="sub">AI-optimized SEO content</div>
+    </div>
+    <div class="stat">
+      <div class="value">3.8%</div>
+      <div class="label">Conversion Rate</div>
+      <div class="sub">↑ from 2.1% baseline</div>
+    </div>
+    <div class="stat">
+      <div class="value">€4.2K</div>
+      <div class="label">Saved / Month</div>
+      <div class="sub">Manual work eliminated</div>
+    </div>
+    <div class="stat">
+      <div class="value">312</div>
+      <div class="label">Pages Generated</div>
+      <div class="sub">Product + SEO content</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>🔄 Active Automations</h3>
+      <div class="flow-item">
+        <div class="flow-icon" style="background:var(--accent-light)">📧</div>
+        <div class="flow-info">
+          <h4>Klaviyo Welcome Flow</h4>
+          <p>AI-personalized welcome series · 5 emails · 42% open rate</p>
+          <div style="margin-top:4px"><span class="tag tag-green">Running</span><span class="tag tag-blue">Klaviyo</span></div>
+        </div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-icon" style="background:var(--blue-light)">🛒</div>
+        <div class="flow-info">
+          <h4>Cart Abandonment Recovery</h4>
+          <p>Dynamic product recommendations · 18% recovery rate</p>
+          <div style="margin-top:4px"><span class="tag tag-green">Running</span><span class="tag tag-blue">Shopify</span></div>
+        </div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-icon" style="background:var(--orange-light)">📢</div>
+        <div class="flow-info">
+          <h4>Google Ads Auto-Optimization</h4>
+          <p>Bid adjustments + ad copy rotation every 6h</p>
+          <div style="margin-top:4px"><span class="tag tag-green">Running</span><span class="tag tag-orange">Google</span></div>
+        </div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-icon" style="background:var(--accent-light)">📝</div>
+        <div class="flow-info">
+          <h4>SEO Content Pipeline</h4>
+          <p>Auto-generate product descriptions + blog posts from data</p>
+          <div style="margin-top:4px"><span class="tag tag-green">Running</span><span class="tag tag-green">Claude</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📈 Channel Performance</h3>
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:.82rem"><span>Google Ads</span><span style="color:var(--accent)">ROAS 4.2x</span></div>
+        <div class="bar-h"><div class="fill" style="width:84%;background:var(--accent)"></div></div>
+      </div>
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:.82rem"><span>Meta Ads</span><span style="color:var(--accent2)">ROAS 3.1x</span></div>
+        <div class="bar-h"><div class="fill" style="width:62%;background:var(--accent2)"></div></div>
+      </div>
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:.82rem"><span>Klaviyo Email</span><span style="color:var(--blue)">ROI 38x</span></div>
+        <div class="bar-h"><div class="fill" style="width:95%;background:var(--blue)"></div></div>
+      </div>
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:.82rem"><span>Organic SEO</span><span style="color:var(--accent)">+147% traffic</span></div>
+        <div class="bar-h"><div class="fill" style="width:73%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:.82rem"><span>TikTok Shop</span><span style="color:var(--orange)">ROAS 2.3x</span></div>
+        <div class="bar-h"><div class="fill" style="width:46%;background:var(--orange)"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:24px">
+    <h3>✍️ AI-Generated Content Queue</h3>
+    <div class="content-grid">
+      <div class="content-card">
+        <h5>🛍️ Product: Vitamin D3 Serum</h5>
+        <p>AI-optimized title + description with target keywords. Ready for Shopify sync.</p>
+        <div class="meta"><span class="tag tag-green">Ready</span><span>SEO score: 94</span></div>
+      </div>
+      <div class="content-card">
+        <h5>📝 Blog: "Top 10 Spring Skincare"</h5>
+        <p>1,200 words, 3 internal links, optimized for "spring skincare routine 2026".</p>
+        <div class="meta"><span class="tag tag-blue">In Review</span><span>SEO score: 88</span></div>
+      </div>
+      <div class="content-card">
+        <h5>📧 Email: Re-engagement Flow</h5>
+        <p>3-part win-back series for inactive subscribers. Personalized subject lines.</p>
+        <div class="meta"><span class="tag tag-orange">Draft</span><span>Est. 12% open</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:24px">
+    <h3>📋 Automation Log</h3>
+    <div class="log">
+      <div class="line"><span class="time">09:42</span><span class="ok">✓</span> Klaviyo: Sent welcome email to 23 new subscribers</div>
+      <div class="line"><span class="time">09:30</span><span class="ok">✓</span> Shopify: Synced 8 product descriptions (AI-generated)</div>
+      <div class="line"><span class="time">09:15</span><span class="ok">✓</span> Google Ads: Adjusted bids on 12 keywords (ROAS optimization)</div>
+      <div class="line"><span class="time">08:45</span><span class="warn">⚠</span> Meta: Ad set "Spring_LAL_25-34" approaching fatigue threshold</div>
+      <div class="line"><span class="time">08:30</span><span class="ok">✓</span> SEO: Published 3 blog posts, submitted to Search Console</div>
+      <div class="line"><span class="time">08:00</span><span class="ok">✓</span> Daily report generated — sent to Slack #marketing</div>
+      <div class="line"><span class="time">07:30</span><span class="ok">✓</span> Cart recovery: 4 carts recovered (€342 revenue)</div>
+    </div>
+  </div>
+
+  <footer>
+    <p>FlowEngine — Built with OpenClaw + Claude · Shopify · Klaviyo · Google Ads</p>
+    <p style="margin-top:4px">Demo preview — Full API integration available on request</p>
+  </footer>
+</div>
+</body>
+</html>

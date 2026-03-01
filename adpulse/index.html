@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdPulse — AI-Powered Ad Reporting</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0f;--card:#12121a;--border:#1e1e2e;--accent:#6c5ce7;--accent2:#a29bfe;--green:#00b894;--red:#d63031;--orange:#fdcb6e;--text:#e0e0e0;--muted:#888}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+.container{max-width:1100px;margin:0 auto;padding:20px 16px}
+header{text-align:center;padding:32px 0 24px}
+header h1{font-size:1.8rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+header p{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.stat .value{font-size:1.6rem;font-weight:700;margin-bottom:2px}
+.stat .label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.stat .change{font-size:.8rem;margin-top:4px}
+.up{color:var(--green)}.down{color:var(--red)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card h3{font-size:.95rem;margin-bottom:16px;color:var(--accent2)}
+.bar-chart .bar-row{display:flex;align-items:center;margin-bottom:10px;gap:10px}
+.bar-chart .bar-label{width:70px;font-size:.8rem;color:var(--muted);flex-shrink:0}
+.bar-chart .bar-track{flex:1;height:24px;background:var(--bg);border-radius:6px;overflow:hidden;position:relative}
+.bar-chart .bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:.75rem;font-weight:600;transition:width 1.5s ease}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{text-align:left;padding:8px 10px;color:var(--muted);font-weight:500;font-size:.75rem;text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:10px;border-bottom:1px solid var(--border)}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600}
+.badge-green{background:rgba(0,184,148,.15);color:var(--green)}
+.badge-red{background:rgba(214,48,49,.15);color:var(--red)}
+.badge-orange{background:rgba(253,203,110,.15);color:var(--orange)}
+.ai-box{background:linear-gradient(135deg,rgba(108,92,231,.1),rgba(162,155,254,.05));border:1px solid rgba(108,92,231,.3);border-radius:12px;padding:20px;margin-bottom:24px}
+.ai-box h3{color:var(--accent2);margin-bottom:12px;font-size:.95rem}
+.ai-box ul{list-style:none;padding:0}
+.ai-box li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.88rem}
+.ai-box li:last-child{border:none}
+.ai-box li::before{content:'🔍 ';margin-right:4px}
+.video-section{margin-bottom:24px}
+.video-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;gap:16px;align-items:flex-start}
+@media(max-width:600px){.video-card{flex-direction:column}}
+.video-thumb{width:120px;height:68px;background:var(--bg);border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+@media(max-width:600px){.video-thumb{width:100%;height:80px}}
+.video-info h4{font-size:.9rem;margin-bottom:4px}
+.video-info p{font-size:.8rem;color:var(--muted)}
+.score-bar{display:flex;gap:4px;margin-top:8px}
+.score-seg{height:6px;border-radius:3px;flex:1}
+footer{text-align:center;padding:20px 0;color:var(--muted);font-size:.75rem}
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>📊 AdPulse</h1>
+    <p>AI-Powered Ad Performance &amp; Video Review Dashboard</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="value" style="color:var(--green)">$12.4K</div>
+      <div class="label">Revenue</div>
+      <div class="change up">↑ 23% vs last month</div>
+    </div>
+    <div class="stat">
+      <div class="value">3.2x</div>
+      <div class="label">ROAS</div>
+      <div class="change up">↑ 0.4x improvement</div>
+    </div>
+    <div class="stat">
+      <div class="value">$1.82</div>
+      <div class="label">CPA</div>
+      <div class="change up">↓ 15% reduced</div>
+    </div>
+    <div class="stat">
+      <div class="value" style="color:var(--accent2)">847</div>
+      <div class="label">Conversions</div>
+      <div class="change up">↑ 31% increase</div>
+    </div>
+  </div>
+
+  <div class="ai-box">
+    <h3>🤖 AI Key Takeaways — February 2026</h3>
+    <ul>
+      <li><strong>Top performer:</strong> "UGC Testimonial v3" drove 41% of all conversions at $1.20 CPA — scale this creative immediately</li>
+      <li><strong>Fatigue alert:</strong> "Product Demo A" CTR dropped 34% week-over-week — refresh or pause recommended</li>
+      <li><strong>Audience insight:</strong> 25-34 female segment converts 2.8x better than broad targeting — consider dedicated ad set</li>
+      <li><strong>Budget reallocation:</strong> Shifting 20% from Meta to TikTok would improve blended ROAS by ~0.3x based on current trends</li>
+    </ul>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>📈 Spend by Platform</h3>
+      <div class="bar-chart">
+        <div class="bar-row">
+          <span class="bar-label">Meta</span>
+          <div class="bar-track"><div class="bar-fill" style="width:72%;background:linear-gradient(90deg,#4267B2,#5b7bd5)">$2,880</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Google</span>
+          <div class="bar-track"><div class="bar-fill" style="width:48%;background:linear-gradient(90deg,#34a853,#4caf50)">$1,920</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">TikTok</span>
+          <div class="bar-track"><div class="bar-fill" style="width:30%;background:linear-gradient(90deg,#ff0050,#ff4081)">$1,200</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">YouTube</span>
+          <div class="bar-track"><div class="bar-fill" style="width:15%;background:linear-gradient(90deg,#c4302b,#e53935)">$600</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🏆 Top Creatives</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Creative</th><th>CTR</th><th>ROAS</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>UGC Testimonial v3</td><td>4.2%</td><td>4.8x</td><td><span class="badge badge-green">Scale</span></td></tr>
+            <tr><td>Before/After Split</td><td>3.1%</td><td>3.2x</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td>Founder Story</td><td>2.8%</td><td>2.5x</td><td><span class="badge badge-orange">Watch</span></td></tr>
+            <tr><td>Product Demo A</td><td>1.4%</td><td>1.1x</td><td><span class="badge badge-red">Fatigued</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="video-section">
+    <h3 style="color:var(--accent2);margin-bottom:16px;font-size:.95rem">🎬 AI Video Review — Latest Edits</h3>
+    
+    <div class="video-card">
+      <div class="video-thumb">🎥</div>
+      <div class="video-info">
+        <h4>UGC_testimonial_v4_draft.mp4</h4>
+        <p>Editor: Sarah M. · Submitted 2h ago · Duration: 0:32</p>
+        <div class="score-bar">
+          <div class="score-seg" style="background:var(--green)"></div>
+          <div class="score-seg" style="background:var(--green)"></div>
+          <div class="score-seg" style="background:var(--green)"></div>
+          <div class="score-seg" style="background:var(--green)"></div>
+          <div class="score-seg" style="background:var(--border)"></div>
+        </div>
+        <p style="margin-top:6px"><strong style="color:var(--green)">Score: 82/100</strong> — ✅ Hook strong (first 3s). ⚠️ CTA text too small at 0:28. Music levels slightly high vs voiceover.</p>
+      </div>
+    </div>
+
+    <div class="video-card">
+      <div class="video-thumb">🎥</div>
+      <div class="video-info">
+        <h4>product_demo_refresh_v1.mp4</h4>
+        <p>Editor: Tom K. · Submitted 5h ago · Duration: 0:45</p>
+        <div class="score-bar">
+          <div class="score-seg" style="background:var(--orange)"></div>
+          <div class="score-seg" style="background:var(--orange)"></div>
+          <div class="score-seg" style="background:var(--orange)"></div>
+          <div class="score-seg" style="background:var(--border)"></div>
+          <div class="score-seg" style="background:var(--border)"></div>
+        </div>
+        <p style="margin-top:6px"><strong style="color:var(--orange)">Score: 58/100</strong> — ❌ Brief requires product close-up in first 5s (missing). ⚠️ No social proof element. ✅ Color grading matches brand guide.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>AdPulse — Built with OpenClaw · AI-powered reporting &amp; video review</p>
+    <p style="margin-top:4px">Demo preview — <span class="pulse">●</span> Live data integration available</p>
+  </footer>
+</div>
+</body>
+</html>
